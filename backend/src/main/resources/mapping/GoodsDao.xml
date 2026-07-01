@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.TropicalFlavor.dao.GoodsDao">
+    <!--完善1.namespace 2.sql语句的id和resultType-->
+    <update id="GoodsSoldOut"  parameterType="com.TropicalFlavor.po.MarketGoods">
+        update MarketGoods set Number=0 where GID=#{GID}
+    </update>
+
+    <update id="ChangeInfo"  parameterType="com.TropicalFlavor.po.MarketGoods">
+        UPDATE MarketGoods
+        <trim prefix="set" suffixOverrides=",">
+            <if test="Image!=null">Image=#{Image},</if>
+            <if test="Name!=null">Name=#{Name},</if>
+            <if test="Kind!=null">Kind=#{Kind},</if>
+            <if test="Price!=null">Price=#{Price},</if>
+            <if test="Number!=null">Number=#{Number},</if>
+            <if test="Comment!=null">Comment=#{Comment},</if>
+            <if test="Status!=null">Status=#{Status},</if>
+            <if test="DeliveryMode!=null">DeliveryMode=#{DeliveryMode},</if>
+            <if test="PickupLocation!=null">PickupLocation=#{PickupLocation},</if>
+            <if test="CampusOnly!=null">CampusOnly=#{CampusOnly},</if>
+            <if test="ReviewNote!=null">ReviewNote=#{ReviewNote},</if>
+            <if test="PublishedAt!=null">PublishedAt=#{PublishedAt},</if>
+        </trim>
+        WHERE GID=#{GID}
+    </update>
+
+    <delete id="DeleteGoods">
+        delete from marketgoods where GID=#{GID}
+    </delete>
+
+    <select id="SelectGoodsByName" resultType="com.TropicalFlavor.po.MarketGoods">
+        select * from marketgoods where Number>0 and Status='ACTIVE' and Name like concat('%', #{KeyWords}, '%')
+    </select>
+
+    <select id="SelectGoodsByKind" resultType="com.TropicalFlavor.po.MarketGoods">
+        select * from marketgoods where Number>0 and Status='ACTIVE' and Kind like concat('%', #{KeyWords}, '%')
+    </select>
+
+    <select id="SelectAllActiveGoods" resultType="com.TropicalFlavor.po.MarketGoods">
+        select * from marketgoods where Number > 0 and Status='ACTIVE'
+    </select>
+
+    <select id="SelectGoodsByExactKind" resultType="com.TropicalFlavor.po.MarketGoods">
+        select * from marketgoods where Number > 0 and Status='ACTIVE' and Kind = #{kind}
+    </select>
+
+    <insert id="InsertGoods">
+        insert into marketgoods
+        (GID,Name,Kind,Price,Number,Image,Comment,Status,DeliveryMode,PickupLocation,CampusOnly,ReviewNote,PublishedAt)
+        values
+        (#{GID},#{Name},#{Kind},#{Price},#{Number},#{Image},#{Comment},#{Status},#{DeliveryMode},#{PickupLocation},#{CampusOnly},#{ReviewNote},#{PublishedAt})
+    </insert>
+
+    <select id="SelectGoods" parameterType="java.lang.String" resultType="com.TropicalFlavor.po.MarketGoods">
+        select GID, Name, Kind, Price, Number, Image, Comment, Status, DeliveryMode, PickupLocation, CampusOnly, ReviewNote, PublishedAt
+        from marketgoods where GID=#{GID}
+    </select>
+
+    <select id="selectTenGoods" resultType="com.TropicalFlavor.po.MarketGoods">
+        select * from marketgoods where Number > 0 and Status='ACTIVE' order by GID desc limit #{start}, 12
+    </select>
+
+    <select id="getGoodsSum" resultType="java.lang.Integer">
+        select count(*) from marketgoods where Number > 0 and Status='ACTIVE';
+    </select>
+
+    <select id="selectByPrice" resultType="com.TropicalFlavor.po.MarketGoods">
+        select * from marketgoods where Number > 0 and Status='ACTIVE' order by Price
+        <if test="ASC == true">
+            ASC
+        </if>
+        <if test="ASC == false">
+            DESC
+        </if>
+        limit #{begin}, 12
+    </select>
+
+    <select id="selectByNumber" resultType="com.TropicalFlavor.po.MarketGoods">
+        select * from marketgoods where Number > 0 and Status='ACTIVE' order by Number
+        <if test="ASC == true">
+            ASC
+        </if>
+        <if test="ASC == false">
+            DESC
+        </if>
+        limit #{begin}, 12
+    </select>
+
+    <select id="selectByGID" resultType="com.TropicalFlavor.po.MarketGoods">
+        select * from marketgoods where Number > 0 and Status='ACTIVE' order by GID desc limit #{begin}, 12
+    </select>
+
+</mapper>

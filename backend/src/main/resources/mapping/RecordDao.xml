@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.TropicalFlavor.dao.RecordDao">
+    <!--完善1.namespace 2.sql语句的id和resuleType-->
+    <delete id="DeleteRecord">
+        delete from  traderecord where PID=#{PID}
+    </delete>
+
+    <select id="SelectRecord" parameterType="com.TropicalFlavor.po.PurchaseRecord">
+        select PID,Date,Time,GID,Gname,Gkind,Gprice,Gnumber,Status,DeliveryMode,PickupLocation,AppointmentTime,Remark,AddressSnapshot
+        from traderecord where PID=#{PID}
+    </select>
+
+    <insert id="InsertTradeRecord">
+        insert into traderecord
+        (PID,BuyerID,Date,Time,GID,SellerID,Gname,Gkind,Gprice,Gnumber,IsSent,IsGot,Status,DeliveryMode,PickupLocation,AppointmentTime,Remark,AddressSnapshot)
+        values
+        (#{PID},#{BuyerID},#{Date},#{Time},#{GID},#{SellerID},#{Gname},#{Gkind},#{Gprice},#{Gnumber},#{sent},#{got},#{Status},#{DeliveryMode},#{PickupLocation},#{AppointmentTime},#{Remark},#{AddressSnapshot})
+    </insert>
+
+    <update id="UpdateRecord">
+        update traderecord
+        set IsSent=#{IsSent},IsGot=#{IsGot},
+            Status=
+            <choose>
+                <when test="IsSent == false and IsGot == false">'PENDING_CONTACT'</when>
+                <when test="IsSent == true and IsGot == false">'PENDING_PICKUP'</when>
+                <otherwise>'COMPLETED'</otherwise>
+            </choose>
+        where PID=#{PID}
+    </update>
+
+    <select id="SelectTradeRecord" resultType="com.TropicalFlavor.po.TradeRecord">
+        select PID,BuyerID,Date,Time,GID,SellerID,Gname,Gkind,Gprice,Gnumber,IsSent,IsGot,Status,DeliveryMode,PickupLocation,AppointmentTime,Remark,AddressSnapshot
+        from traderecord where PID=#{PID}
+    </select>
+
+    <select id="ShowRecord" resultType="com.TropicalFlavor.po.PurchaseRecord">
+        select PID,Date,Time,GID,Gname,Gkind,Gprice,Gnumber,Status,DeliveryMode,PickupLocation,AppointmentTime,Remark,AddressSnapshot
+        from traderecord
+        where BuyerID=#{marketUser.UID} and IsSent = #{IsSent} and IsGot = #{IsGot}
+    </select>
+
+    <select id="ShowAllRecord" resultType="com.TropicalFlavor.po.TradeRecord">
+        select PID,BuyerID,Date,Time,GID,SellerID,Gname,Gkind,Gprice,Gnumber,IsSent,IsGot,Status,DeliveryMode,PickupLocation,AppointmentTime,Remark,AddressSnapshot
+        from traderecord
+    </select>
+
+</mapper>

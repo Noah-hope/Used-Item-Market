@@ -1,0 +1,34 @@
+# AI / local workspace metadata
+.agents/
+.codex/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Root build output
+/target/
+
+# Backend build / runtime output
+/backend/target/
+/backend/tomcat9-base/
+/backend/*.log
+/backend/*.out
+/backend/*.err
+/backend/logs/
+
+# Backend local-only config
+/backend/src/main/resources/jdbc.properties
+
+# Frontend build / dependency output
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+
+# Generic Java / Node build output
+*.class
+*.jar
+*.war
+*.tmp

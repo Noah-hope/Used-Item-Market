@@ -1,0 +1,9 @@
+driver=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost:3306/useditemmarket
+username=root
+password=your_mysql_password
+initiaSize=0
+maxActive=20
+maxIdle=20
+minIdle=1
+maxWait=60000

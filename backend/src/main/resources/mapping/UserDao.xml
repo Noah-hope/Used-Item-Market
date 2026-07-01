@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.TropicalFlavor.dao.UserDao">
+    <!--完善1.namespace 2.sql语句的id和resuleType-->
+    <select id="IsTrue" resultType="java.lang.String">
+        select UID from user where UID like concat('%', #{sno}) and Password=#{password}
+    </select>
+
+    <update id="ChangeInfo"  parameterType="com.TropicalFlavor.po.MarketUser">
+        UPDATE user
+        <trim prefix="set" suffixOverrides=",">
+            <if test="Uname!=null">Uname=#{Uname},</if>
+            <if test="Email!=null">Email=#{Email},</if>
+            <if test="PhoneNum!=null">PhoneNum=#{PhoneNum},</if>
+            <if test="Password!=null">Password=#{Password},</if>
+            <if test="Status!=null">Status=#{Status},</if>
+            <if test="StudentNo!=null">StudentNo=#{StudentNo},</if>
+            <if test="RealName!=null">RealName=#{RealName},</if>
+            <if test="CampusVerified!=null">CampusVerified=#{CampusVerified},</if>
+            <if test="Avatar!=null">Avatar=#{Avatar},</if>
+            <if test="Bio!=null">Bio=#{Bio},</if>
+            <if test="Status==null">Status=0,</if>
+        </trim>
+        WHERE UID=#{UID}
+    </update>
+
+    <delete id="DeleteUser">
+        delete from user where UID=#{UID}
+    </delete>
+
+    <insert id="InsertUser">
+        insert into user
+        (UID,Uname,Email,PhoneNum,Password,Status,StudentNo,RealName,CampusVerified,Avatar,Bio)
+        values
+        (
+        #{UID},
+        #{Uname},
+        #{Email},
+        #{PhoneNum},
+        #{Password},
+        <choose>
+            <when test="Status!=null">#{Status}</when>
+            <otherwise>0</otherwise>
+        </choose>,
+        #{StudentNo},
+        #{RealName},
+        <choose>
+            <when test="CampusVerified!=null">#{CampusVerified}</when>
+            <otherwise>1</otherwise>
+        </choose>,
+        #{Avatar},
+        #{Bio}
+        )
+    </insert>
+
+    <select id="SelectUser" parameterType="java.lang.String" resultType="com.TropicalFlavor.po.MarketUser">
+        select UID, Uname, Email, PhoneNum, Password, Status, StudentNo, RealName, CampusVerified, Avatar, Bio
+        from user where UID = #{UID}
+    </select>
+
+    <select id="ShowUser" resultType="com.TropicalFlavor.po.MarketUser">
+        select UID, Uname, Email, PhoneNum, Password, Status, StudentNo, RealName, CampusVerified, Avatar, Bio
+        from useditemmarket.user
+    </select>
+
+</mapper>
