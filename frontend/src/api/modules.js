@@ -82,6 +82,9 @@ export const sellerApi = {
   list() {
     return http.get('/seller/goods')
   },
+  detail(id) {
+    return http.get(`/seller/goods/${id}`)
+  },
   create(payload) {
     return http.post('/seller/goods', payload)
   },
@@ -90,6 +93,11 @@ export const sellerApi = {
   },
   remove(id) {
     return http.delete(`/seller/goods/${id}`)
+  },
+  uploadImage(file) {
+    const fd = new FormData()
+    fd.append('imageFile', file)
+    return http.post('/seller/goods/upload-image', fd)
   },
 }
 

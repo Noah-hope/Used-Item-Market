@@ -3,10 +3,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
-    <context:component-scan base-package="com.TropicalFlavor.service"/>
-    <context:component-scan base-package="com.TropicalFlavor.security"/>
-    <context:component-scan base-package="com.TropicalFlavor.repository"/>
-    <context:component-scan base-package="com.TropicalFlavor.config"/>
+    <context:component-scan base-package="com.useditemmarket.service"/>
+    <context:component-scan base-package="com.useditemmarket.security"/>
+    <context:component-scan base-package="com.useditemmarket.repository"/>
+    <context:component-scan base-package="com.useditemmarket.config"/>
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="location" value="classpath:jdbc.properties"/>
     </bean>
@@ -31,7 +31,7 @@
         <property name="mapperLocations" value="classpath:mapping/*.xml"/>
     </bean>
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="com.TropicalFlavor.dao"/>
+        <property name="basePackage" value="com.useditemmarket.dao"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

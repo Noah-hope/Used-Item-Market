@@ -2,13 +2,13 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.TropicalFlavor.dao.SRecordDao">
+<mapper namespace="com.useditemmarket.dao.SRecordDao">
     <!--完善1.namespace 2.sql语句的id和resuleType-->
     <delete id="DeleteRecord">
         delete from traderecord where PID=#{PID}
     </delete>
 
-    <select id="SelectRecord" resultType="com.TropicalFlavor.po.SaleRecord">
+    <select id="SelectRecord" resultType="com.useditemmarket.po.SaleRecord">
         select * from traderecord where PID=#{PID}
     </select>
 
@@ -18,7 +18,7 @@
                #{Gname},#{Gkind},#{Gprice},#{Gnumber})
     </insert>
 
-    <select id="ShowRecord" resultType="com.TropicalFlavor.po.SaleRecord">
+    <select id="ShowRecord" resultType="com.useditemmarket.po.SaleRecord">
         select PID,BuyerID,Date,Time,GID,Gname,Gkind,Gprice,Gnumber,Status,DeliveryMode,PickupLocation,AppointmentTime,Remark,AddressSnapshot
         from traderecord
         where SellerID=#{marketUser.UID}

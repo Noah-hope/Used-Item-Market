@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.TropicalFlavor.dao.CarDao">
+<mapper namespace="com.useditemmarket.dao.CarDao">
     <!--完善1.namespace 2.sql语句的id和resuleType-->
     <delete id="DeleteGoods" >
         delete  from shoppingcart where UID=#{UID} and GID=#{marketGoods.GID}
@@ -12,7 +12,7 @@
         insert into shoppingcart values(#{UID},#{marketGoods.GID},#{marketGoods.Number})
     </insert>
 
-    <resultMap id="MarketGoodsMap" type="com.TropicalFlavor.po.MarketGoods">
+    <resultMap id="MarketGoodsMap" type="com.useditemmarket.po.MarketGoods">
         <!-- 主键字段使用 id -->
         <id column="GID" property="GID" />
         <!--非主键字段使用 result-->
@@ -23,7 +23,7 @@
         <result column="Image" property="Image"/>
     </resultMap>
 
-    <update id="ChangeCart" parameterType="com.TropicalFlavor.po.MarketGoods">
+    <update id="ChangeCart" parameterType="com.useditemmarket.po.MarketGoods">
         UPDATE shoppingcart
         set UID=#{UID}, GID=#{marketGoods.GID}, Number=#{marketGoods.Number}
         where UID=#{UID} and GID=#{marketGoods.GID}

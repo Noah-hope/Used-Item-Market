@@ -2,10 +2,16 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { catalogApi, sellerApi } from '../api/modules'
+import { extractErrorMessage } from '../api/http'
 
 const route = useRoute()
 const router = useRouter()
 const categories = ref([])
+const imageFile = ref(null)
+const imagePreview = ref('')
+const currentImage = ref('')
+const submitting = ref(false)
+const errorMessage = ref('')
 const form = reactive({
   name: '',
   category: '',
@@ -20,7 +26,7 @@ const form = reactive({
 async function loadDetail() {
   const categoryResponse = await catalogApi.categories()
   categories.value = categoryResponse.data
-  const response = await catalogApi.detail(route.params.id)
+  const response = await sellerApi.detail(route.params.id)
   Object.assign(form, {
     name: response.data.name,
     category: response.data.category,
@@ -31,11 +37,32 @@ async function loadDetail() {
     deliveryMode: response.data.deliveryMode || 'SELF_PICKUP',
     pickupLocation: response.data.pickupLocation || '',
   })
+  currentImage.value = response.data.image || ''
+}
+
+function onFileChange(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  imageFile.value = file
+  imagePreview.value = URL.createObjectURL(file)
 }
 
 async function submit() {
-  await sellerApi.update(route.params.id, form)
-  router.push('/seller/goods')
+  if (submitting.value) return
+  submitting.value = true
+  errorMessage.value = ''
+  try {
+    if (imageFile.value) {
+      const uploadRes = await sellerApi.uploadImage(imageFile.value)
+      form.image = uploadRes.data
+    }
+    await sellerApi.update(route.params.id, form)
+    router.push('/seller/goods')
+  } catch (error) {
+    errorMessage.value = error.userMessage || extractErrorMessage(error, '更新失败')
+  } finally {
+    submitting.value = false
+  }
 }
 
 onMounted(loadDetail)
@@ -52,7 +79,16 @@ onMounted(loadDetail)
       </select>
       <input v-model.number="form.price" class="text-input" type="number" placeholder="价格" />
       <input v-model.number="form.stock" class="text-input" type="number" placeholder="库存" />
-      <input v-model="form.image" class="text-input" placeholder="图片 URL（可选）" />
+      <div class="image-upload-area">
+        <label class="image-upload-label">
+          <span v-if="!imagePreview && !currentImage">点击上传商品图片</span>
+          <img v-else-if="imagePreview" :src="imagePreview" class="image-preview" />
+          <img v-else-if="currentImage" :src="currentImage" class="image-preview" />
+          <input type="file" accept="image/*" class="image-file-input" @change="onFileChange" />
+        </label>
+        <p v-if="imageFile" class="hint-text">{{ imageFile.name }} ({{ (imageFile.size / 1024).toFixed(0) }}KB)</p>
+        <p v-else-if="currentImage && !imagePreview" class="hint-text">点击可替换当前图片</p>
+      </div>
       <select v-model="form.deliveryMode" class="select-input">
         <option value="SELF_PICKUP">自提</option>
         <option value="CAMPUS_DELIVERY">送货到校</option>
@@ -61,6 +97,7 @@ onMounted(loadDetail)
       <input v-model="form.pickupLocation" class="text-input" placeholder="自提点或送货说明" />
       <textarea v-model="form.comment" class="text-area" placeholder="商品描述"></textarea>
     </div>
-    <button class="primary-btn" @click="submit">保存修改</button>
+    <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
+    <button class="primary-btn" :disabled="submitting" @click="submit">保存修改</button>
   </section>
 </template>

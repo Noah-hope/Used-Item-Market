@@ -2,14 +2,14 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.TropicalFlavor.dao.UtilsDao">
+<mapper namespace="com.useditemmarket.dao.UtilsDao">
     <!--完善1.namespace 2.sql语句的id和resuleType-->
 
-    <select id="selectOneUser" resultType="com.TropicalFlavor.po.MarketUser">
+    <select id="selectOneUser" resultType="com.useditemmarket.po.MarketUser">
         select * from user where UID=#{UID}
     </select>
 
-    <select id="selectOneGoods" resultType="com.TropicalFlavor.po.MarketGoods">
+    <select id="selectOneGoods" resultType="com.useditemmarket.po.MarketGoods">
         select * from marketgoods where GID=#{GID}
     </select>
 
@@ -21,11 +21,11 @@
         select max(GID) from marketgoods
     </select>
 
-    <select id="selectOnePRecord" resultType="com.TropicalFlavor.po.PurchaseRecord">
+    <select id="selectOnePRecord" resultType="com.useditemmarket.po.PurchaseRecord">
         select PID,Date,Time,GID,Gname,Gkind,Gprice,Gnumber from  traderecord where PID=#{PID}
     </select>
 
-    <select id="selectOneSRecord" resultType="com.TropicalFlavor.po.SaleRecord">
+    <select id="selectOneSRecord" resultType="com.useditemmarket.po.SaleRecord">
         select PID,BuyerID,Date,Time,GID,Gname,Gkind,Gprice,Gnumber
         from  traderecord where PID=#{PID}
     </select>

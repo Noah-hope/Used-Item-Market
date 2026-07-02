@@ -2,9 +2,14 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { catalogApi, sellerApi } from '../api/modules'
+import { extractErrorMessage } from '../api/http'
 
 const router = useRouter()
 const categories = ref([])
+const imageFile = ref(null)
+const imagePreview = ref('')
+const submitting = ref(false)
+const errorMessage = ref('')
 const form = reactive({
   name: '',
   category: '',
@@ -24,9 +29,29 @@ onMounted(async () => {
   }
 })
 
+function onFileChange(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  imageFile.value = file
+  imagePreview.value = URL.createObjectURL(file)
+}
+
 async function submit() {
-  await sellerApi.create(form)
-  router.push('/seller/goods')
+  if (submitting.value) return
+  submitting.value = true
+  errorMessage.value = ''
+  try {
+    if (imageFile.value) {
+      const uploadRes = await sellerApi.uploadImage(imageFile.value)
+      form.image = uploadRes.data
+    }
+    await sellerApi.create(form)
+    router.push('/seller/goods')
+  } catch (error) {
+    errorMessage.value = error.userMessage || extractErrorMessage(error, '发布失败')
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
 
@@ -41,7 +66,14 @@ async function submit() {
       </select>
       <input v-model.number="form.price" class="text-input" type="number" placeholder="价格" />
       <input v-model.number="form.stock" class="text-input" type="number" placeholder="库存" />
-      <input v-model="form.image" class="text-input" placeholder="图片 URL（可选）" />
+      <div class="image-upload-area">
+        <label class="image-upload-label">
+          <span v-if="!imagePreview">点击上传商品图片</span>
+          <img v-else :src="imagePreview" class="image-preview" />
+          <input type="file" accept="image/*" class="image-file-input" @change="onFileChange" />
+        </label>
+        <p v-if="imageFile" class="hint-text">{{ imageFile.name }} ({{ (imageFile.size / 1024).toFixed(0) }}KB)</p>
+      </div>
       <select v-model="form.deliveryMode" class="select-input">
         <option value="SELF_PICKUP">自提</option>
         <option value="CAMPUS_DELIVERY">送货到校</option>
@@ -50,6 +82,7 @@ async function submit() {
       <input v-model="form.pickupLocation" class="text-input" placeholder="自提点或送货说明" />
       <textarea v-model="form.comment" class="text-area" placeholder="商品描述"></textarea>
     </div>
-    <button class="primary-btn" @click="submit">确认发布</button>
+    <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
+    <button class="primary-btn" :disabled="submitting" @click="submit">确认发布</button>
   </section>
 </template>

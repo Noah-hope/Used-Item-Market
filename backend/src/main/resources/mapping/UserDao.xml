@@ -2,13 +2,13 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.TropicalFlavor.dao.UserDao">
+<mapper namespace="com.useditemmarket.dao.UserDao">
     <!--完善1.namespace 2.sql语句的id和resuleType-->
     <select id="IsTrue" resultType="java.lang.String">
         select UID from user where UID like concat('%', #{sno}) and Password=#{password}
     </select>
 
-    <update id="ChangeInfo"  parameterType="com.TropicalFlavor.po.MarketUser">
+    <update id="ChangeInfo"  parameterType="com.useditemmarket.po.MarketUser">
         UPDATE user
         <trim prefix="set" suffixOverrides=",">
             <if test="Uname!=null">Uname=#{Uname},</if>
@@ -55,12 +55,12 @@
         )
     </insert>
 
-    <select id="SelectUser" parameterType="java.lang.String" resultType="com.TropicalFlavor.po.MarketUser">
+    <select id="SelectUser" parameterType="java.lang.String" resultType="com.useditemmarket.po.MarketUser">
         select UID, Uname, Email, PhoneNum, Password, Status, StudentNo, RealName, CampusVerified, Avatar, Bio
         from user where UID = #{UID}
     </select>
 
-    <select id="ShowUser" resultType="com.TropicalFlavor.po.MarketUser">
+    <select id="ShowUser" resultType="com.useditemmarket.po.MarketUser">
         select UID, Uname, Email, PhoneNum, Password, Status, StudentNo, RealName, CampusVerified, Avatar, Bio
         from useditemmarket.user
     </select>

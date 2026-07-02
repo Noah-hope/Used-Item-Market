@@ -10,6 +10,20 @@ $webappsPath = Join-Path $tomcatBase 'webapps'
 $rootWarPath = Join-Path $webappsPath 'ROOT.war'
 $rootDirPath = Join-Path $webappsPath 'ROOT'
 
+function Invoke-MavenPackage {
+    Write-Host 'Building backend WAR with local Maven cache...' -ForegroundColor Cyan
+    & $maven -o -DskipTests package
+    if ($LASTEXITCODE -eq 0) {
+        return
+    }
+
+    Write-Warning 'Offline Maven build failed. Falling back to online dependency resolution...'
+    & $maven -DskipTests package
+    if ($LASTEXITCODE -ne 0) {
+        throw "Maven build failed with exit code $LASTEXITCODE"
+    }
+}
+
 if (!(Test-Path $maven)) {
     throw "Maven not found: $maven"
 }
@@ -23,8 +37,7 @@ if (Test-Path $stopScript) {
     Start-Sleep -Seconds 2
 }
 
-# Use offline package mode here because local verification/build has already prepared dependencies.
-& $maven -o -DskipTests package
+Invoke-MavenPackage
 
 if (!(Test-Path $warPath)) {
     throw "WAR not built: $warPath"
