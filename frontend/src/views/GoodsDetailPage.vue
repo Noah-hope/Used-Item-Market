@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { cartApi, catalogApi, favoriteApi, orderApi, chatApi } from '../api/modules'
 import { useAuthStore } from '../stores/auth'
+import { resolveAssetUrl } from '../utils/assets'
 
 const route = useRoute()
 const router = useRouter()
@@ -83,7 +84,7 @@ onMounted(loadDetail)
 <template>
   <section v-if="goods" class="detail-layout">
     <div class="detail-image-card">
-      <img :src="goods.image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'" class="detail-image" />
+      <img :src="resolveAssetUrl(goods.image) || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'" class="detail-image" />
     </div>
     <div class="detail-panel">
       <p class="eyebrow">{{ goods.category }}</p>

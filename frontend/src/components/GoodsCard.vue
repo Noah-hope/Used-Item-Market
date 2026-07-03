@@ -1,4 +1,6 @@
 <script setup>
+import { resolveAssetUrl } from '../utils/assets'
+
 defineProps({
   item: {
     type: Object,
@@ -11,7 +13,7 @@ defineProps({
   <article class="goods-card" @click="$router.push(`/goods/${item.gid}`)">
     <div class="goods-image-wrap">
       <img
-        :src="item.image || 'https://img.alicdn.com/imgextra/i1/O1CN01v3ZQ7I1Fvxck5BYnX_!!6000000000550-2-tps-800-800.png'"
+        :src="resolveAssetUrl(item.image) || 'https://img.alicdn.com/imgextra/i1/O1CN01v3ZQ7I1Fvxck5BYnX_!!6000000000550-2-tps-800-800.png'"
         :alt="item.name"
         class="goods-image"
       />

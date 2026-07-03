@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { catalogApi, sellerApi } from '../api/modules'
 import { extractErrorMessage } from '../api/http'
+import { resolveAssetUrl } from '../utils/assets'
 
 const route = useRoute()
 const router = useRouter()
@@ -83,7 +84,7 @@ onMounted(loadDetail)
         <label class="image-upload-label">
           <span v-if="!imagePreview && !currentImage">点击上传商品图片</span>
           <img v-else-if="imagePreview" :src="imagePreview" class="image-preview" />
-          <img v-else-if="currentImage" :src="currentImage" class="image-preview" />
+          <img v-else-if="currentImage" :src="resolveAssetUrl(currentImage)" class="image-preview" />
           <input type="file" accept="image/*" class="image-file-input" @change="onFileChange" />
         </label>
         <p v-if="imageFile" class="hint-text">{{ imageFile.name }} ({{ (imageFile.size / 1024).toFixed(0) }}KB)</p>

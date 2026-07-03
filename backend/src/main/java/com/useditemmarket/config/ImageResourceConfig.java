@@ -1,5 +1,6 @@
 package com.useditemmarket.config;
 
+import com.useditemmarket.util.ProjectPaths;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,13 +12,7 @@ public class ImageResourceConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        File workingDir = new File(System.getProperty("user.dir"));
-        File projectRoot = workingDir;
-        if ("backend".equalsIgnoreCase(workingDir.getName()) && workingDir.getParentFile() != null) {
-            projectRoot = workingDir.getParentFile();
-        }
-
-        String location = new File(projectRoot, "img").toURI().toString();
+        String location = "file:" + ProjectPaths.resolveImageBaseDir().getAbsolutePath().replace(File.separatorChar, '/') + "/";
         registry.addResourceHandler("/img/**")
                 .addResourceLocations(location);
     }

@@ -1,6 +1,7 @@
 ﻿package com.useditemmarket.service.support;
 
 import com.useditemmarket.exception.BaseException;
+import com.useditemmarket.util.ProjectPaths;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,12 +71,7 @@ public class FileStorageService {
     }
 
     private File resolveBaseDir() {
-        File workingDir = new File(System.getProperty("user.dir"));
-        File projectRoot = workingDir;
-        if ("backend".equalsIgnoreCase(workingDir.getName()) && workingDir.getParentFile() != null) {
-            projectRoot = workingDir.getParentFile();
-        }
-        File baseDir = new File(projectRoot, "img");
+        File baseDir = ProjectPaths.resolveImageBaseDir();
         log.info("图片保存目录: {}", baseDir.getAbsolutePath());
         return baseDir;
     }
