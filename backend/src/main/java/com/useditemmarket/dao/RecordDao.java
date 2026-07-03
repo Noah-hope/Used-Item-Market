@@ -20,7 +20,7 @@ public interface RecordDao {
     public TradeRecord SelectTradeRecord(String PID);
 
     public List<PurchaseRecord> ShowRecord(@Param("marketUser") MarketUser marketUser,
-                                           @Param("IsSent") boolean IsSent,@Param("IsGot") boolean IsGot);
+                                           @Param("Status") String status);
 
     public List<TradeRecord> ShowAllRecord();
 }

@@ -40,7 +40,7 @@
     <select id="ShowRecord" resultType="com.useditemmarket.po.PurchaseRecord">
         select PID,Date,Time,GID,Gname,Gkind,Gprice,Gnumber,Status,DeliveryMode,PickupLocation,AppointmentTime,Remark,AddressSnapshot
         from traderecord
-        where BuyerID=#{marketUser.UID} and IsSent = #{IsSent} and IsGot = #{IsGot}
+        where BuyerID=#{marketUser.UID} and Status = #{Status}
     </select>
 
     <select id="ShowAllRecord" resultType="com.useditemmarket.po.TradeRecord">

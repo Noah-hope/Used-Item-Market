@@ -40,10 +40,10 @@ onMounted(loadOrders)
       <div>
         <strong>{{ order.goodsName }}</strong>
         <p>买家 {{ order.buyerUid }} · {{ order.date }} {{ order.time }}</p>
-        <p>交付：{{ order.deliveryMode }} · 地址：{{ order.addressSnapshot || '待补充' }}</p>
+        <p>交付：{{ $enumLabel('deliveryMode', order.deliveryMode) || order.deliveryMode }} · 地址：{{ order.addressSnapshot || '待补充' }}</p>
       </div>
       <div class="inline-actions">
-        <span class="tag">{{ order.status }}</span>
+        <span class="tag">{{ $enumLabel('orderStatus', order.status) }}</span>
         <button v-if="status === 'PENDING_CONTACT'" class="primary-btn" @click="ship(order)">确认沟通完成</button>
       </div>
     </div>

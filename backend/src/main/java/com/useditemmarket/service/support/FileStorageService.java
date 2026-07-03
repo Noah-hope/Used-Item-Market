@@ -3,11 +3,8 @@
 import com.useditemmarket.exception.BaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -28,34 +25,36 @@ public class FileStorageService {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     /**
-     * Save an uploaded image to webapp/img/{uid}/{UUID}.{ext}
+     * Save an uploaded image to {projectRoot}/img/{uid}/{UUID}.{ext}
      * @return path like "/img/{uid}/{uuid}.{ext}"
      */
     public String saveImage(MultipartFile file, String uid) {
         if (file == null || file.isEmpty()) {
-            throw new BaseException(400, "璇烽€夋嫨鍥剧墖鏂囦欢");
+            throw new BaseException(400, "请选择图片文件");
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new BaseException(400, "鍥剧墖澶у皬涓嶈兘瓒呰繃5MB");
+            throw new BaseException(400, "图片大小不能超过 5MB");
         }
 
         String originalFilename = file.getOriginalFilename();
         String ext = getExtension(originalFilename);
         if (!ALLOWED_EXTENSIONS.contains(ext)) {
-            throw new BaseException(400, "涓嶆敮鎸佺殑鍥剧墖鏍煎紡锛屼粎鏀寔 jpg銆乯peg銆乸ng銆乬if銆亀ebp");
+            throw new BaseException(400, "不支持的图片格式，仅支持 jpg、jpeg、png、gif、webp");
         }
 
         String fileName = UUID.randomUUID().toString().replace("-", "") + "." + ext;
 
         File baseDir = resolveBaseDir();
         if (!baseDir.exists() && !baseDir.mkdirs()) {
-            throw new BaseException(500, "鍒涘缓鍥剧墖瀛樺偍鏍圭洰褰曞け璐?");
+            log.error("无法创建图片根目录: {}", baseDir.getAbsolutePath());
+            throw new BaseException(500, "无法创建图片目录");
         }
         File userDir = new File(baseDir, uid);
         if (!userDir.exists()) {
             if (!userDir.mkdirs()) {
-                throw new BaseException(500, "鍒涘缓鍥剧墖瀛樺偍鐩綍澶辫触");
+                log.error("无法创建用户图片目录: {}", userDir.getAbsolutePath());
+                throw new BaseException(500, "无法创建图片目录");
             }
         }
 
@@ -63,36 +62,22 @@ public class FileStorageService {
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            log.error("图片保存失败", e);
-            throw new BaseException(500, "鍥剧墖淇濆瓨澶辫触");
+            log.error("图片保存失败, path={}", dest.getAbsolutePath(), e);
+            throw new BaseException(500, "图片保存失败");
         }
 
         return "/img/" + uid + "/" + fileName;
     }
 
     private File resolveBaseDir() {
-        try {
-            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-            ServletContext sc = attrs.getRequest().getServletContext();
-            String realPath = sc.getRealPath("/img");
-            if (realPath != null) {
-                return new File(realPath);
-            }
-        } catch (Exception ex) {
-            log.warn("无法通过 ServletContext 获取 img 目录，使用 fallback 路径", ex);
+        File workingDir = new File(System.getProperty("user.dir"));
+        File projectRoot = workingDir;
+        if ("backend".equalsIgnoreCase(workingDir.getName()) && workingDir.getParentFile() != null) {
+            projectRoot = workingDir.getParentFile();
         }
-
-        String catalinaBase = System.getProperty("catalina.base");
-        if (catalinaBase != null && !catalinaBase.trim().isEmpty()) {
-            return new File(catalinaBase, "webapps/ROOT/img");
-        }
-
-        File backendWebappImg = new File(System.getProperty("user.dir"), "backend/src/main/webapp/img");
-        if (backendWebappImg.exists()) {
-            return backendWebappImg;
-        }
-
-        return new File(System.getProperty("user.dir"), "src/main/webapp/img");
+        File baseDir = new File(projectRoot, "img");
+        log.info("图片保存目录: {}", baseDir.getAbsolutePath());
+        return baseDir;
     }
 
     private String getExtension(String filename) {

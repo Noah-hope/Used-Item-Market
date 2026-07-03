@@ -13,5 +13,5 @@ public interface SRecordDao
     public boolean InsertRecord(SaleRecord purchaseRecord);
 
     public List<SaleRecord> ShowRecord(@Param("marketUser") MarketUser marketUser,
-                                       @Param("IsSent") boolean IsSent, @Param("IsGot") boolean IsGot);
+                                       @Param("Status") String status);
 }

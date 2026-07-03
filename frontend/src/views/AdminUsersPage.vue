@@ -53,7 +53,7 @@ onMounted(loadUsers)
             <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.phoneNumber }}</td>
-            <td>{{ user.status }}</td>
+            <td>{{ $enumLabel('userStatus', user.status) }}</td>
             <td>
               <div class="inline-actions">
                 <button class="ghost-btn" @click="resetPassword(user)">重置密码</button>

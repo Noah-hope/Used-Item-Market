@@ -116,7 +116,7 @@ public class OrderServiceImpl extends AbstractApiSupport implements OrderService
 
     @Override
     public List<OrderVo> listPurchases(String uid, OrderStatus status) {
-        return recordDao.ShowRecord(requireNormalUser(uid), status.isSent(), status.isGot()).stream()
+        return recordDao.ShowRecord(requireNormalUser(uid), status.name()).stream()
                 .filter(record -> !isAdminUid(salesDao.WhoseGoods(record.getGID())))
                 .map(record -> OrderVo.fromPurchase(record, salesDao.WhoseGoods(record.getGID()), status))
                 .collect(Collectors.toList());
@@ -124,7 +124,7 @@ public class OrderServiceImpl extends AbstractApiSupport implements OrderService
 
     @Override
     public List<OrderVo> listSales(String uid, OrderStatus status) {
-        return saleRecordDao.ShowRecord(requireNormalUser(uid), status.isSent(), status.isGot()).stream()
+        return saleRecordDao.ShowRecord(requireNormalUser(uid), status.name()).stream()
                 .collect(Collectors.toList())
                 .stream()
                 .map(record -> OrderVo.fromSale(record, status))

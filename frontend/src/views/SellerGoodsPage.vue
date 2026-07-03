@@ -31,8 +31,8 @@ onMounted(loadGoods)
     <div v-for="item in goods" :key="item.gid" class="list-row">
       <div>
         <strong>{{ item.name }}</strong>
-        <p>{{ item.category }} · ￥{{ item.price }} · 库存 {{ item.stock }} · 状态 {{ item.status }}</p>
-        <p>{{ item.deliveryMode }} · {{ item.pickupLocation || '待补充' }}</p>
+        <p>{{ item.category }} · ￥{{ item.price }} · 库存 {{ item.stock }} · 状态 {{ $enumLabel('goodsStatus', item.status) }}</p>
+        <p>{{ $enumLabel('deliveryMode', item.deliveryMode) || item.deliveryMode }} · {{ item.pickupLocation || '待补充' }}</p>
         <p v-if="item.reviewNote" class="error-text">审核备注：{{ item.reviewNote }}</p>
       </div>
       <div class="inline-actions">

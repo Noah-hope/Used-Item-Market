@@ -93,7 +93,7 @@ onMounted(loadDetail)
       <div class="detail-stats">
         <div><span>库存</span><strong>{{ goods.stock }}</strong></div>
         <div><span>卖家</span><strong>{{ goods.sellerName || goods.sellerUid }}</strong></div>
-        <div><span>交付方式</span><strong>{{ goods.deliveryMode || 'SELF_PICKUP' }}</strong></div>
+        <div><span>交付方式</span><strong>{{ $enumLabel('deliveryMode', goods.deliveryMode) || '自提' }}</strong></div>
         <div><span>自提/送货说明</span><strong>{{ goods.pickupLocation || '待协商' }}</strong></div>
       </div>
       <div class="purchase-row">

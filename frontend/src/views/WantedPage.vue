@@ -66,14 +66,16 @@ onMounted(async () => {
             <p>{{ item.description || '求购方还没有补充更多描述。' }}</p>
           </div>
           <div class="match-block">
-            <span class="tag">{{ item.status }}</span>
+            <span class="tag">{{ $enumLabel('wantedStatus', item.status) }}</span>
             <p class="hint-text">关键词：{{ item.keyword || '无' }}</p>
+            <p class="hint-text">匹配到的在售商品</p>
             <div v-if="item.matches?.length" class="match-list">
               <div v-for="match in item.matches" :key="match.gid" class="mini-item">
                 <span>{{ match.name }}</span>
                 <strong>￥{{ match.price }}</strong>
               </div>
             </div>
+            <p v-else class="hint-text">暂时没有匹配到合适的商品</p>
           </div>
         </div>
       </div>
@@ -106,7 +108,7 @@ onMounted(async () => {
           <div v-for="item in myWanted" :key="item.id" class="list-row">
             <div>
               <strong>{{ item.title }}</strong>
-              <p>{{ item.category }} · {{ item.status }}</p>
+              <p>{{ item.category }} · {{ $enumLabel('wantedStatus', item.status) }}</p>
             </div>
             <button v-if="item.status === 'OPEN'" class="ghost-btn" @click="closeWanted(item.id)">关闭求购</button>
           </div>

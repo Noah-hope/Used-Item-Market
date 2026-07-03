@@ -22,6 +22,6 @@
         select PID,BuyerID,Date,Time,GID,Gname,Gkind,Gprice,Gnumber,Status,DeliveryMode,PickupLocation,AppointmentTime,Remark,AddressSnapshot
         from traderecord
         where SellerID=#{marketUser.UID}
-          and IsSent = #{IsSent} and IsGot = #{IsGot}
+          and Status = #{Status}
     </select>
 </mapper>

@@ -39,7 +39,7 @@ onMounted(async () => {
             <td>{{ order.sellerUid }}</td>
             <td>￥{{ order.price }}</td>
             <td>{{ order.quantity }}</td>
-            <td>{{ order.status }}</td>
+            <td>{{ $enumLabel('orderStatus', order.status) }}</td>
           </tr>
         </tbody>
       </table>

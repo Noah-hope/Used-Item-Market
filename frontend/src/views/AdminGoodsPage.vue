@@ -37,7 +37,7 @@ onMounted(loadData)
         <div v-for="item in pendingGoods" :key="item.gid" class="list-row stacked">
           <div>
             <strong>{{ item.name }}</strong>
-            <p>{{ item.category }} · 卖家 {{ item.sellerName || item.sellerUid }} · {{ item.deliveryMode }}</p>
+            <p>{{ item.category }} · 卖家 {{ item.sellerName || item.sellerUid }} · {{ $enumLabel('deliveryMode', item.deliveryMode) || item.deliveryMode }}</p>
             <p>{{ item.comment || '暂无描述' }}</p>
           </div>
           <div class="review-actions">
@@ -70,7 +70,7 @@ onMounted(loadData)
             <td>{{ item.name }}</td>
             <td>{{ item.category }}</td>
             <td>{{ item.sellerName || item.sellerUid }}</td>
-            <td>{{ item.status }}</td>
+            <td>{{ $enumLabel('goodsStatus', item.status) }}</td>
             <td>{{ item.reviewNote || '-' }}</td>
           </tr>
         </tbody>
