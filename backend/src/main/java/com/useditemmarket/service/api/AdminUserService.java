@@ -15,5 +15,7 @@ public interface AdminUserService {
 
     UserVo disableUser(String targetUid);
 
+    UserVo enableUser(String targetUid);
+
     List<OrderVo> listOrders();
 }

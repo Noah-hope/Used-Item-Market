@@ -87,6 +87,16 @@ public class AdminUserServiceImpl extends AbstractApiSupport implements AdminUse
     }
 
     @Override
+    public UserVo enableUser(String targetUid) {
+        MarketUser user = requireUser(targetUid);
+        user.setStatus(UserStatus.ACTIVE.getCode());
+        if (!userDao.ChangeInfo(user)) {
+            throw new BaseException(500, "启用用户失败");
+        }
+        return UserVo.from(requireUser(targetUid));
+    }
+
+    @Override
     public List<OrderVo> listOrders() {
         return recordDao.ShowAllRecord().stream()
                 .map(OrderVo::fromTrade)

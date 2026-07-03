@@ -159,6 +159,9 @@ export const adminApi = {
   disable(uid) {
     return http.post(`/admin/users/${uid}/disable`)
   },
+  enable(uid) {
+    return http.post(`/admin/users/${uid}/enable`)
+  },
   orders() {
     return http.get('/admin/orders')
   },

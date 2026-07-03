@@ -14,6 +14,11 @@ async function disableUser(user) {
   await loadUsers()
 }
 
+async function enableUser(user) {
+  await adminApi.enable(user.uid)
+  await loadUsers()
+}
+
 async function resetPassword(user) {
   await adminApi.resetPassword(user.uid)
   await loadUsers()
@@ -52,7 +57,20 @@ onMounted(loadUsers)
             <td>
               <div class="inline-actions">
                 <button class="ghost-btn" @click="resetPassword(user)">重置密码</button>
-                <button class="primary-btn danger" @click="disableUser(user)">停用</button>
+                <button
+                  v-if="user.status === 'DISABLED'"
+                  class="primary-btn"
+                  @click="enableUser(user)"
+                >
+                  启用
+                </button>
+                <button
+                  v-else
+                  class="primary-btn danger"
+                  @click="disableUser(user)"
+                >
+                  停用
+                </button>
               </div>
             </td>
           </tr>

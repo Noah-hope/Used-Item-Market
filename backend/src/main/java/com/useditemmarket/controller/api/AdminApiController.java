@@ -56,6 +56,12 @@ public class AdminApiController {
         return ApiResponse.success("停用成功", adminUserService.disableUser(uid));
     }
 
+    @PostMapping("/users/{uid}/enable")
+    public ApiResponse<UserVo> enable(@PathVariable("uid") String uid) {
+        requireAdmin();
+        return ApiResponse.success("启用成功", adminUserService.enableUser(uid));
+    }
+
     @GetMapping("/orders")
     public ApiResponse<List<OrderVo>> orders() {
         requireAdmin();

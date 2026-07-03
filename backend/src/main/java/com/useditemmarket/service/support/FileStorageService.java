@@ -1,6 +1,7 @@
 ﻿package com.useditemmarket.service.support;
 
 import com.useditemmarket.exception.BaseException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -8,12 +9,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletContext;
 import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class FileStorageService {
 
@@ -45,6 +49,9 @@ public class FileStorageService {
         String fileName = UUID.randomUUID().toString().replace("-", "") + "." + ext;
 
         File baseDir = resolveBaseDir();
+        if (!baseDir.exists() && !baseDir.mkdirs()) {
+            throw new BaseException(500, "鍒涘缓鍥剧墖瀛樺偍鏍圭洰褰曞け璐?");
+        }
         File userDir = new File(baseDir, uid);
         if (!userDir.exists()) {
             if (!userDir.mkdirs()) {
@@ -53,9 +60,10 @@ public class FileStorageService {
         }
 
         File dest = new File(userDir, fileName);
-        try {
-            file.transferTo(dest);
-        } catch (IOException e) {
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            log.error("图片保存失败", e);
             throw new BaseException(500, "鍥剧墖淇濆瓨澶辫触");
         }
 
@@ -70,10 +78,20 @@ public class FileStorageService {
             if (realPath != null) {
                 return new File(realPath);
             }
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            log.warn("无法通过 ServletContext 获取 img 目录，使用 fallback 路径", ex);
         }
 
-        // Fallback for dev: user.dir is the project root (backend/)
+        String catalinaBase = System.getProperty("catalina.base");
+        if (catalinaBase != null && !catalinaBase.trim().isEmpty()) {
+            return new File(catalinaBase, "webapps/ROOT/img");
+        }
+
+        File backendWebappImg = new File(System.getProperty("user.dir"), "backend/src/main/webapp/img");
+        if (backendWebappImg.exists()) {
+            return backendWebappImg;
+        }
+
         return new File(System.getProperty("user.dir"), "src/main/webapp/img");
     }
 
