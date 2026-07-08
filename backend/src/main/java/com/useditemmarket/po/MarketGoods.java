@@ -31,6 +31,8 @@ public class MarketGoods {
 
     private String PublishedAt;
 
+    private Boolean ReviewNoteTouched;
+
     public MarketGoods(){};
 
     public MarketGoods(String name, String kind, Double price, Double number)
@@ -134,6 +136,14 @@ public class MarketGoods {
 
     public void setPublishedAt(String publishedAt) {
         PublishedAt = publishedAt;
+    }
+
+    public Boolean getReviewNoteTouched() {
+        return ReviewNoteTouched;
+    }
+
+    public void setReviewNoteTouched(Boolean reviewNoteTouched) {
+        ReviewNoteTouched = reviewNoteTouched;
     }
 
     public void setImage(String image) {

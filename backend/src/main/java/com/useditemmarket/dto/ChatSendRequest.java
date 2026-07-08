@@ -3,6 +3,7 @@ package com.useditemmarket.dto;
 public class ChatSendRequest {
     private String receiverUid;
     private String goodsId;
+    private String orderPid;
     private String content;
 
     public String getReceiverUid() {
@@ -19,6 +20,14 @@ public class ChatSendRequest {
 
     public void setGoodsId(String goodsId) {
         this.goodsId = goodsId;
+    }
+
+    public String getOrderPid() {
+        return orderPid;
+    }
+
+    public void setOrderPid(String orderPid) {
+        this.orderPid = orderPid;
     }
 
     public String getContent() {

@@ -30,20 +30,20 @@ public class WantedServiceImpl extends AbstractApiSupport implements WantedServi
     @Override
     public WantedVo create(String uid, WantedCreateRequest request) {
         requireNormalUser(uid);
-        requireNotBlank(request.getTitle(), "求购标题不能为空");
+        requireNotBlank(request.getTitle(), "求购物品不能为空");
         requireNotBlank(request.getCategory(), "分类不能为空");
         WantedVo wanted = new WantedVo();
         wanted.setTitle(request.getTitle().trim());
         wanted.setCategory(request.getCategory().trim());
         wanted.setBudget(request.getBudget() == null ? 0D : request.getBudget());
-        wanted.setKeyword(request.getKeyword());
-        wanted.setDescription(request.getDescription());
+        wanted.setKeyword(request.getKeyword() == null ? null : request.getKeyword().trim());
+        wanted.setDescription(request.getDescription() == null ? null : request.getDescription().trim());
         return wantedRepository.createWanted(uid, wanted);
     }
 
     @Override
-    public WantedVo close(String uid, Long id) {
+    public WantedVo delete(String uid, Long id) {
         requireNormalUser(uid);
-        return wantedRepository.closeWanted(uid, id);
+        return wantedRepository.deleteWanted(uid, id);
     }
 }

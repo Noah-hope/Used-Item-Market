@@ -5,6 +5,7 @@ import com.useditemmarket.model.AuthContext;
 import com.useditemmarket.response.ApiResponse;
 import com.useditemmarket.service.api.WantedService;
 import com.useditemmarket.vo.WantedVo;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,8 +37,8 @@ public class WantedController {
         return ApiResponse.success("求购已发布", wantedService.create(AuthContext.get().getUid(), request));
     }
 
-    @PostMapping("/{id}/close")
-    public ApiResponse<WantedVo> close(@PathVariable Long id) {
-        return ApiResponse.success("求购已关闭", wantedService.close(AuthContext.get().getUid(), id));
+    @DeleteMapping("/{id}")
+    public ApiResponse<WantedVo> delete(@PathVariable Long id) {
+        return ApiResponse.success("求购已删除", wantedService.delete(AuthContext.get().getUid(), id));
     }
 }

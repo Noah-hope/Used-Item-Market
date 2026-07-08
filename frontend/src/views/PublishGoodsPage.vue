@@ -13,8 +13,8 @@ const errorMessage = ref('')
 const form = reactive({
   name: '',
   category: '',
-  price: 0,
-  stock: 1,
+  price: null,
+  stock: null,
   image: '',
   comment: '',
   deliveryMode: 'SELF_PICKUP',
@@ -57,15 +57,14 @@ async function submit() {
 
 <template>
   <section class="panel-card wide-panel">
-    <p class="eyebrow">发布商品</p>
     <h2>上架新的校园闲置</h2>
     <div class="form-grid two">
       <input v-model="form.name" class="text-input" placeholder="商品名称" />
       <select v-model="form.category" class="select-input">
         <option v-for="item in categories" :key="item.code" :value="item.label">{{ item.label }}</option>
       </select>
-      <input v-model.number="form.price" class="text-input" type="number" placeholder="价格" />
-      <input v-model.number="form.stock" class="text-input" type="number" placeholder="库存" />
+      <input v-model.number="form.price" class="text-input" type="number" placeholder="请输入商品价格" />
+      <input v-model.number="form.stock" class="text-input" type="number" placeholder="请输入商品库存" />
       <div class="image-upload-area">
         <label class="image-upload-label">
           <span v-if="!imagePreview">点击上传商品图片</span>
@@ -75,14 +74,15 @@ async function submit() {
         <p v-if="imageFile" class="hint-text">{{ imageFile.name }} ({{ (imageFile.size / 1024).toFixed(0) }}KB)</p>
       </div>
       <select v-model="form.deliveryMode" class="select-input">
-        <option value="SELF_PICKUP">自提</option>
-        <option value="CAMPUS_DELIVERY">送货到校</option>
-        <option value="BOTH">自提/送货均可</option>
+        <option value="SELF_PICKUP">买家自提</option>
+        <option value="CAMPUS_DELIVERY">商家送货到指定地址</option>
       </select>
       <input v-model="form.pickupLocation" class="text-input" placeholder="自提点或送货说明" />
       <textarea v-model="form.comment" class="text-area" placeholder="商品描述"></textarea>
     </div>
     <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
-    <button class="primary-btn" :disabled="submitting" @click="submit">确认发布</button>
+    <div class="form-action-row">
+      <button class="primary-btn" :disabled="submitting" @click="submit">确认发布</button>
+    </div>
   </section>
 </template>

@@ -18,7 +18,7 @@ public class FavoriteRepository extends JdbcVoMapperSupport {
                         "from favorite_goods f join marketgoods g on f.GID = g.GID " +
                         "join salegoods s on s.GID = g.GID " +
                         "left join user u on u.UID = s.UID " +
-                        "where f.UID = ? and g.Status = 'ACTIVE' order by f.Id desc",
+                        "where f.UID = ? order by f.Id desc",
                 goodsMapper(),
                 uid
         );
@@ -35,6 +35,10 @@ public class FavoriteRepository extends JdbcVoMapperSupport {
 
     public void removeFavorite(String uid, String gid) {
         jdbcTemplate.update("delete from favorite_goods where UID = ? and GID = ?", uid, gid);
+    }
+
+    public void deleteByGid(String gid) {
+        jdbcTemplate.update("delete from favorite_goods where GID = ?", gid);
     }
 
     private boolean isFavorite(String uid, String gid) {

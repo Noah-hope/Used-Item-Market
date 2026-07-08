@@ -1,6 +1,7 @@
-﻿package com.useditemmarket.service.api.impl;
+package com.useditemmarket.service.api.impl;
 
 import com.useditemmarket.exception.BaseException;
+import com.useditemmarket.po.MarketGoods;
 import com.useditemmarket.repository.FavoriteRepository;
 import com.useditemmarket.service.api.FavoriteService;
 import com.useditemmarket.vo.GoodsVo;
@@ -25,11 +26,12 @@ public class FavoriteServiceImpl extends AbstractApiSupport implements FavoriteS
     @Override
     public void add(String uid, String gid) {
         requireNormalUser(uid);
-        requireGoods(gid);
+        MarketGoods goods = requireGoods(gid);
         String sellerUid = salesDao.WhoseGoods(gid);
         if (isAdminUid(sellerUid)) {
             throw new BaseException(400, "该商品不可收藏");
         }
+        requireGoodsActive(goods, "该商品当前不可收藏");
         favoriteRepository.addFavorite(uid, gid);
     }
 

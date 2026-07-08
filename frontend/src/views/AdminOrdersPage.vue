@@ -18,7 +18,7 @@ onMounted(async () => {
         <h2>全站交易概览</h2>
       </div>
     </div>
-    <div class="table-shell">
+    <div class="table-shell admin-table-shell">
       <table class="data-table">
         <thead>
           <tr>
@@ -32,7 +32,7 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="order in orders" :key="order.pid">
+          <tr v-for="order in orders" :key="order.pid" class="admin-data-row">
             <td>{{ order.pid }}</td>
             <td>{{ order.goodsName }}</td>
             <td>{{ order.buyerUid }}</td>

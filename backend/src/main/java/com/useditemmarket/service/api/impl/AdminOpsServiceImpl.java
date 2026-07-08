@@ -42,16 +42,19 @@ public class AdminOpsServiceImpl extends AbstractApiSupport implements AdminOpsS
         if ("approve".equalsIgnoreCase(action)) {
             goods.setStatus(GoodsStatus.ACTIVE.name());
             goods.setReviewNote(null);
+            goods.setReviewNoteTouched(true);
             if (goods.getPublishedAt() == null) {
                 goods.setPublishedAt(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
             }
         } else if ("reject".equalsIgnoreCase(action)) {
             goods.setStatus(GoodsStatus.REJECTED.name());
             goods.setReviewNote(request == null ? null : request.getNote());
+            goods.setReviewNoteTouched(true);
         } else if ("ban".equalsIgnoreCase(action)) {
             goods.setStatus(GoodsStatus.BANNED.name());
             goods.setNumber(0.0);
             goods.setReviewNote(request == null ? null : request.getNote());
+            goods.setReviewNoteTouched(true);
         } else {
             throw new BaseException(400, "未知审核操作");
         }

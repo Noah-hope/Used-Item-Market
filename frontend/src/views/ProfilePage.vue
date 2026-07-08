@@ -70,8 +70,7 @@ onMounted(loadProfile)
 
 <template>
   <section class="profile-grid">
-    <div class="panel-card">
-      <p class="eyebrow">个人中心</p>
+    <div class="panel-card profile-panel">
       <h2>基本信息</h2>
       <div class="form-grid">
         <input v-model="profile.uid" class="text-input" disabled />
@@ -85,16 +84,16 @@ onMounted(loadProfile)
       </div>
       <button class="primary-btn" @click="saveProfile">保存信息</button>
     </div>
-    <div class="panel-card">
-      <p class="eyebrow">安全</p>
+    <div class="panel-card profile-panel password-panel">
       <h2>修改密码</h2>
-      <input v-model="passwordForm.password" class="text-input" type="password" placeholder="新密码" />
-      <input v-model="passwordForm.confirmPassword" class="text-input" type="password" placeholder="确认密码" />
+      <div class="password-row">
+        <input v-model="passwordForm.password" class="text-input" type="password" placeholder="新密码" />
+        <input v-model="passwordForm.confirmPassword" class="text-input" type="password" placeholder="确认密码" />
+      </div>
       <button class="primary-btn" @click="savePassword">更新密码</button>
       <p v-if="message" class="success-text">{{ message }}</p>
     </div>
-    <div class="panel-card">
-      <p class="eyebrow">收货地址</p>
+    <div class="panel-card profile-panel">
       <h2>校内地址管理</h2>
       <div class="form-grid">
         <input v-model="addressForm.receiverName" class="text-input" placeholder="收货人" />
@@ -119,3 +118,31 @@ onMounted(loadProfile)
     </div>
   </section>
 </template>
+
+<style scoped>
+.profile-panel > h2 {
+  margin-bottom: 16px;
+}
+
+.profile-panel > .primary-btn,
+.profile-panel > .success-text,
+.profile-panel > .list-panel {
+  margin-top: 16px;
+}
+
+.password-panel {
+  align-self: start;
+}
+
+.password-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .password-row {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

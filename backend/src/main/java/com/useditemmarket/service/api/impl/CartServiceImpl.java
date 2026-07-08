@@ -1,4 +1,4 @@
-﻿package com.useditemmarket.service.api.impl;
+package com.useditemmarket.service.api.impl;
 
 import com.useditemmarket.dao.CarDao;
 import com.useditemmarket.exception.BaseException;
@@ -20,8 +20,8 @@ public class CartServiceImpl extends AbstractApiSupport implements CartService {
 
     @Override
     public List<CartItemVo> listCart(String uid) {
-        return carDao.ShowGoods(requireNormalUser(uid)).stream()
-                .map(item -> CartItemVo.from(item, salesDao.WhoseGoods(item.getGID())))
+        requireNormalUser(uid);
+        return carDao.ShowGoods(requireUser(uid)).stream()
                 .collect(Collectors.toList());
     }
 
@@ -37,6 +37,7 @@ public class CartServiceImpl extends AbstractApiSupport implements CartService {
         if (uid.equals(sellerUid)) {
             throw new BaseException(400, "不能购买自己的商品");
         }
+        requireGoodsActive(goods, "该商品当前不可加入购物车");
         MarketGoods existing = findCartItem(uid, gid);
         double newQuantity = quantity;
         if (existing != null) {
@@ -61,6 +62,7 @@ public class CartServiceImpl extends AbstractApiSupport implements CartService {
         validateQuantity(quantity);
         requireNormalUser(uid);
         MarketGoods goods = requireGoods(gid);
+        requireGoodsActive(goods, "该商品当前不可购买");
         if (quantity > goods.getNumber()) {
             throw new BaseException(400, "超出最大可购买数量");
         }
@@ -82,9 +84,12 @@ public class CartServiceImpl extends AbstractApiSupport implements CartService {
     }
 
     private MarketGoods findCartItem(String uid, String gid) {
-        for (MarketGoods item : carDao.ShowGoods(requireNormalUser(uid))) {
-            if (gid.equals(item.getGID())) {
-                return item;
+        requireNormalUser(uid);
+        for (CartItemVo item : carDao.ShowGoods(requireUser(uid))) {
+            if (gid.equals(item.getGid())) {
+                MarketGoods goods = new MarketGoods(item.getGid(), item.getName(), item.getCategory(), item.getPrice(), item.getQuantity(), item.getImage());
+                goods.setStatus(item.getStatus());
+                return goods;
             }
         }
         return null;

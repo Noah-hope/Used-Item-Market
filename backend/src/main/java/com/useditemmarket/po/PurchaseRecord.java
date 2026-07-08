@@ -30,6 +30,9 @@ public class PurchaseRecord {
 
     private String AddressSnapshot;
 
+    public PurchaseRecord() {
+    }
+
     public PurchaseRecord(String pid, String date, String time, MarketGoods goods, Double number) {
         PID=pid;
         Date = date;

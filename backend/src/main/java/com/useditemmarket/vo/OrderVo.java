@@ -75,7 +75,7 @@ public class OrderVo {
         vo.category = record.getGkind();
         vo.price = record.getGprice();
         vo.quantity = record.getGnumber();
-        vo.status = record.getStatus() == null ? OrderStatus.fromFlags(record.isSent(), record.isGot()) : OrderStatus.fromValue(record.getStatus());
+        vo.status = OrderStatus.fromValue(record.getStatus());
         vo.deliveryMode = record.getDeliveryMode();
         vo.pickupLocation = record.getPickupLocation();
         vo.appointmentTime = record.getAppointmentTime();

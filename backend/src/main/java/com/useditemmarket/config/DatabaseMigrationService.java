@@ -42,21 +42,46 @@ public class DatabaseMigrationService {
         jdbcTemplate.update("update marketgoods set Status = 'ACTIVE' where Status is null and Number > 0");
         jdbcTemplate.update("update marketgoods set Status = 'OFF_SHELF' where Status is null and Number <= 0");
         jdbcTemplate.update("update marketgoods set DeliveryMode = 'SELF_PICKUP' where DeliveryMode is null");
+        jdbcTemplate.update("update marketgoods set DeliveryMode = 'SELF_PICKUP' where DeliveryMode = 'BOTH'");
         jdbcTemplate.update("update marketgoods set CampusOnly = 1 where CampusOnly is null");
         jdbcTemplate.update("update marketgoods set PublishedAt = date_format(now(), '%Y-%m-%d %H:%i:%s') where PublishedAt is null");
     }
 
     private void ensureTradeRecordTable() {
-        addColumnIfMissing("traderecord", "Status", "varchar(32) default 'PENDING_CONTACT'");
+        addColumnIfMissing("traderecord", "Status", "varchar(32) default 'PENDING_PICKUP'");
         addColumnIfMissing("traderecord", "DeliveryMode", "varchar(32) default 'SELF_PICKUP'");
         addColumnIfMissing("traderecord", "PickupLocation", "varchar(255) default null");
         addColumnIfMissing("traderecord", "AppointmentTime", "varchar(64) default null");
         addColumnIfMissing("traderecord", "Remark", "varchar(255) default null");
         addColumnIfMissing("traderecord", "AddressSnapshot", "varchar(500) default null");
-        jdbcTemplate.update("update traderecord set Status = 'PENDING_CONTACT' where Status is null and ifnull(IsSent,0) = 0 and ifnull(IsGot,0) = 0");
-        jdbcTemplate.update("update traderecord set Status = 'PENDING_PICKUP' where Status is null and ifnull(IsSent,0) = 1 and ifnull(IsGot,0) = 0");
-        jdbcTemplate.update("update traderecord set Status = 'COMPLETED' where Status is null and ifnull(IsSent,0) = 1 and ifnull(IsGot,0) = 1");
         jdbcTemplate.update("update traderecord set DeliveryMode = 'SELF_PICKUP' where DeliveryMode is null");
+        jdbcTemplate.update("update traderecord set DeliveryMode = 'SELF_PICKUP' where DeliveryMode = 'BOTH'");
+        jdbcTemplate.update(
+                "update traderecord set Status = case " +
+                        "when ifnull(IsGot,0) = 1 then 'COMPLETED' " +
+                        "when DeliveryMode = 'CAMPUS_DELIVERY' and ifnull(IsSent,0) = 1 then 'PENDING_RECEIPT' " +
+                        "when DeliveryMode = 'CAMPUS_DELIVERY' then 'PENDING_SHIPMENT' " +
+                        "else 'PENDING_PICKUP' end " +
+                        "where Status is null"
+        );
+        jdbcTemplate.update(
+                "update traderecord set Status = case " +
+                        "when DeliveryMode = 'CAMPUS_DELIVERY' then 'PENDING_SHIPMENT' " +
+                        "else 'PENDING_PICKUP' end " +
+                        "where Status = 'PENDING_CONTACT'"
+        );
+        jdbcTemplate.update(
+                "update traderecord set Status = 'PENDING_RECEIPT' " +
+                        "where Status = 'PENDING_PICKUP' and DeliveryMode = 'CAMPUS_DELIVERY' and ifnull(IsSent,0) = 1 and ifnull(IsGot,0) = 0"
+        );
+        jdbcTemplate.update(
+                "update traderecord set Status = 'PENDING_SHIPMENT', IsSent = 0, IsGot = 0 " +
+                        "where DeliveryMode = 'CAMPUS_DELIVERY' and Status = 'PENDING_PICKUP' and ifnull(IsSent,0) = 0 and ifnull(IsGot,0) = 0"
+        );
+        jdbcTemplate.update("update traderecord set IsSent = 0 where Status in ('PENDING_PICKUP', 'PENDING_SHIPMENT')");
+        jdbcTemplate.update("update traderecord set IsSent = 1 where Status in ('PENDING_RECEIPT', 'COMPLETED')");
+        jdbcTemplate.update("update traderecord set IsGot = 0 where Status in ('PENDING_PICKUP', 'PENDING_SHIPMENT', 'PENDING_RECEIPT')");
+        jdbcTemplate.update("update traderecord set IsGot = 1 where Status = 'COMPLETED'");
     }
 
     private void ensureExtraTables() {
@@ -82,10 +107,12 @@ public class DatabaseMigrationService {
                 "SenderUID char(18) not null," +
                 "ReceiverUID char(18) not null," +
                 "GoodsID varchar(10) default null," +
+                "OrderPID varchar(20) default null," +
                 "Content varchar(1000) not null," +
                 "CreatedAt datetime default current_timestamp," +
                 "IsRead tinyint default 0" +
                 ")");
+        addColumnIfMissing("chat_message", "OrderPID", "varchar(20) default null");
         jdbcTemplate.update("create table if not exists goods_category (" +
                 "Id bigint primary key auto_increment," +
                 "Code varchar(64) not null," +

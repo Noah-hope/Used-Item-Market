@@ -21,7 +21,7 @@
             <if test="DeliveryMode!=null">DeliveryMode=#{DeliveryMode},</if>
             <if test="PickupLocation!=null">PickupLocation=#{PickupLocation},</if>
             <if test="CampusOnly!=null">CampusOnly=#{CampusOnly},</if>
-            <if test="ReviewNote!=null">ReviewNote=#{ReviewNote},</if>
+            <if test="ReviewNoteTouched == true or ReviewNote!=null">ReviewNote=#{ReviewNote},</if>
             <if test="PublishedAt!=null">PublishedAt=#{PublishedAt},</if>
         </trim>
         WHERE GID=#{GID}

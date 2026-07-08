@@ -21,14 +21,27 @@ Thumbs.db
 
 # Backend local-only config
 /backend/src/main/resources/jdbc.properties
+/backend/src/main/resources/*.local.properties
+/backend/src/main/resources/*.local.yml
+/backend/src/main/resources/*.local.yaml
 
 # Frontend build / dependency output
 /frontend/node_modules/
 /frontend/dist/
 /frontend/.vite/
+/frontend/.env
+/frontend/.env.*
 
 # Generic Java / Node build output
 *.class
 *.jar
 *.war
 *.tmp
+
+# Local uploaded images / user assets
+/img/
+/backend/src/main/webapp/img/
+
+# Generic local secrets
+*.env
+*.env.*

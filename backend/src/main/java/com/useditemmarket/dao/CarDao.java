@@ -1,15 +1,20 @@
 package com.useditemmarket.dao;
-import com.useditemmarket.po.*;
+
+import com.useditemmarket.po.MarketGoods;
+import com.useditemmarket.po.MarketUser;
+import com.useditemmarket.vo.CartItemVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface CarDao {
-    public boolean DeleteGoods(@Param("UID") String UID, @Param("marketGoods") MarketGoods marketGoods);
+    boolean DeleteGoods(@Param("UID") String UID, @Param("marketGoods") MarketGoods marketGoods);
 
-    public boolean InsertGoods(@Param("UID") String UID, @Param("marketGoods") MarketGoods marketGoods);
+    boolean DeleteByGid(@Param("GID") String GID);
 
-    public boolean ChangeCart(@Param("UID") String UID, @Param("marketGoods") MarketGoods marketGoods);
+    boolean InsertGoods(@Param("UID") String UID, @Param("marketGoods") MarketGoods marketGoods);
 
-    public List<MarketGoods> ShowGoods(MarketUser marketUser);
+    boolean ChangeCart(@Param("UID") String UID, @Param("marketGoods") MarketGoods marketGoods);
+
+    List<CartItemVo> ShowGoods(MarketUser marketUser);
 }

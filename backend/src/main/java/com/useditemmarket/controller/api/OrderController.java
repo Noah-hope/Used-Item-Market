@@ -6,6 +6,7 @@ import com.useditemmarket.model.OrderStatus;
 import com.useditemmarket.response.ApiResponse;
 import com.useditemmarket.service.api.OrderService;
 import com.useditemmarket.vo.OrderVo;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,12 +30,12 @@ public class OrderController {
     }
 
     @GetMapping("/purchases")
-    public ApiResponse<List<OrderVo>> purchases(@RequestParam(defaultValue = "PENDING_CONTACT") String status) {
+    public ApiResponse<List<OrderVo>> purchases(@RequestParam(defaultValue = "PENDING_PICKUP") String status) {
         return ApiResponse.success(orderService.listPurchases(AuthContext.get().getUid(), OrderStatus.valueOf(status)));
     }
 
     @GetMapping("/sales")
-    public ApiResponse<List<OrderVo>> sales(@RequestParam(defaultValue = "PENDING_CONTACT") String status) {
+    public ApiResponse<List<OrderVo>> sales(@RequestParam(defaultValue = "PENDING_SHIPMENT") String status) {
         return ApiResponse.success(orderService.listSales(AuthContext.get().getUid(), OrderStatus.valueOf(status)));
     }
 
@@ -46,5 +47,11 @@ public class OrderController {
     @PostMapping("/{pid}/receive")
     public ApiResponse<OrderVo> receive(@PathVariable String pid) {
         return ApiResponse.success("确认收货成功", orderService.receive(AuthContext.get().getUid(), pid));
+    }
+
+    @DeleteMapping("/{pid}")
+    public ApiResponse<Void> delete(@PathVariable String pid) {
+        orderService.delete(AuthContext.get().getUid(), pid);
+        return ApiResponse.success("订单已删除", null);
     }
 }

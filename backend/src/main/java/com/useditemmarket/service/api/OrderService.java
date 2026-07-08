@@ -16,4 +16,6 @@ public interface OrderService {
     OrderVo ship(String uid, String pid);
 
     OrderVo receive(String uid, String pid);
+
+    void delete(String uid, String pid);
 }

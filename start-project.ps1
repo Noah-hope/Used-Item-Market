@@ -2,9 +2,11 @@ $ErrorActionPreference = 'Stop'
 
 $projectRoot = $PSScriptRoot
 $backendScript = Join-Path $projectRoot 'backend\start-tomcat9.ps1'
-$stopBackendScript = Join-Path $projectRoot 'backend\stop-tomcat9.ps1'
+$stopProjectScript = Join-Path $projectRoot 'stop-project.ps1'
 $frontendRoot = Join-Path $projectRoot 'frontend'
 $preferredNpm = 'D:\software\nodejs\npm.cmd'
+$backendWindowTitle = 'Used-Item-Market Backend'
+$frontendWindowTitle = 'Used-Item-Market Frontend'
 
 if (!(Test-Path $backendScript)) {
     throw "Backend start script not found: $backendScript"
@@ -23,37 +25,40 @@ if (Test-Path $preferredNpm) {
     $npmCmd = $npmCommand.Source
 }
 
-# Stop any previous Tomcat 9 instance first so the new window can start cleanly.
-if (Test-Path $stopBackendScript) {
-    & $stopBackendScript
+# Stop any previous frontend/backend windows and processes first so restart is predictable.
+if (Test-Path $stopProjectScript) {
+    & $stopProjectScript
+    Start-Sleep -Seconds 2
 }
 
 $backendCommand = @"
 Set-Location -LiteralPath '$projectRoot'
-`$host.UI.RawUI.WindowTitle = 'Used-Item-Market Backend'
+`$host.UI.RawUI.WindowTitle = '$backendWindowTitle'
 Write-Host 'Starting backend Tomcat service...' -ForegroundColor Cyan
 & '$backendScript'
 "@
 
 $frontendCommand = @"
 Set-Location -LiteralPath '$frontendRoot'
-`$host.UI.RawUI.WindowTitle = 'Used-Item-Market Frontend'
+`$host.UI.RawUI.WindowTitle = '$frontendWindowTitle'
 Write-Host 'Starting frontend dev server...' -ForegroundColor Green
-& '$npmCmd' run dev
+& '$npmCmd' run dev -- --host 0.0.0.0
 "@
 
-Start-Process -FilePath 'powershell.exe' -ArgumentList @(
+$backendProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList @(
     '-NoExit',
     '-ExecutionPolicy', 'Bypass',
     '-Command', $backendCommand
-)
+) -PassThru
 
 Start-Sleep -Seconds 2
 
-Start-Process -FilePath 'powershell.exe' -ArgumentList @(
+$frontendProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList @(
     '-NoExit',
     '-ExecutionPolicy', 'Bypass',
     '-Command', $frontendCommand
-)
+) -PassThru
 
+Write-Host "Backend window started (PID: $($backendProcess.Id))." -ForegroundColor Cyan
+Write-Host "Frontend window started (PID: $($frontendProcess.Id))." -ForegroundColor Green
 Write-Host 'Frontend and backend startup windows have been opened.'

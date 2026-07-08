@@ -33,8 +33,7 @@ async function submit() {
 <template>
   <div class="auth-shell">
     <div class="auth-card large">
-      <p class="eyebrow">注册</p>
-      <h1>创建校内交易账号</h1>
+      <h1>注册</h1>
       <div class="form-grid two">
         <input v-model="form.studentNo" class="text-input" placeholder="学号" />
         <input v-model="form.username" class="text-input" placeholder="姓名" />
@@ -45,7 +44,17 @@ async function submit() {
       </div>
       <p v-if="message" class="success-text">{{ message }}</p>
       <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
-      <button class="primary-btn wide" @click="submit">提交注册</button>
+      <div class="auth-actions">
+        <button class="primary-btn wide" @click="submit">提交注册</button>
+        <button class="ghost-btn wide" @click="router.push('/login')">返回登录</button>
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.auth-actions {
+  display: grid;
+  gap: 12px;
+}
+</style>

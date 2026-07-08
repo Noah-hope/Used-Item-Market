@@ -70,6 +70,26 @@ public class FileStorageService {
         return "/img/" + uid + "/" + fileName;
     }
 
+    public void deleteImage(String imagePath) {
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            return;
+        }
+
+        String normalized = imagePath.trim().replace('\\', '/');
+        if (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+
+        File file = new File(ProjectPaths.resolveProjectRoot(), normalized);
+        try {
+            if (file.exists() && !file.delete()) {
+                log.warn("删除图片失败: {}", file.getAbsolutePath());
+            }
+        } catch (Exception ex) {
+            log.warn("删除图片异常: {}", file.getAbsolutePath(), ex);
+        }
+    }
+
     private File resolveBaseDir() {
         File baseDir = ProjectPaths.resolveImageBaseDir();
         log.info("图片保存目录: {}", baseDir.getAbsolutePath());

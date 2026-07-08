@@ -5,6 +5,7 @@ import com.useditemmarket.dao.SalesDao;
 import com.useditemmarket.dao.UserDao;
 import com.useditemmarket.dao.UtilsDao;
 import com.useditemmarket.exception.BaseException;
+import com.useditemmarket.model.GoodsStatus;
 import com.useditemmarket.po.MarketGoods;
 import com.useditemmarket.po.MarketUser;
 import com.useditemmarket.util.StringUtils;
@@ -80,6 +81,15 @@ abstract class AbstractApiSupport {
     protected void requireCampusVerified(MarketUser user) {
         if (user.getCampusVerified() != null && user.getCampusVerified() == 0) {
             throw new BaseException(403, "请先完成校园认证");
+        }
+    }
+
+    protected void requireGoodsActive(MarketGoods goods, String message) {
+        if (goods == null || GoodsStatus.fromValue(goods.getStatus()) != GoodsStatus.ACTIVE) {
+            throw new BaseException(400, message);
+        }
+        if (goods.getNumber() == null || goods.getNumber() <= 0) {
+            throw new BaseException(400, message);
         }
     }
 

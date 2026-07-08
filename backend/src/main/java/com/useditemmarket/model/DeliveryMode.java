@@ -1,9 +1,8 @@
 package com.useditemmarket.model;
 
 public enum DeliveryMode {
-    SELF_PICKUP("自提"),
-    CAMPUS_DELIVERY("送货到校"),
-    BOTH("自提/送货均可");
+    SELF_PICKUP("买家自提"),
+    CAMPUS_DELIVERY("商家送货到指定地址");
 
     private final String label;
 
@@ -19,8 +18,12 @@ public enum DeliveryMode {
         if (value == null || value.trim().isEmpty()) {
             return SELF_PICKUP;
         }
+        String normalized = value.trim().toUpperCase();
+        if ("BOTH".equals(normalized)) {
+            return SELF_PICKUP;
+        }
         try {
-            return DeliveryMode.valueOf(value.trim().toUpperCase());
+            return DeliveryMode.valueOf(normalized);
         } catch (IllegalArgumentException ex) {
             for (DeliveryMode mode : values()) {
                 if (mode.label.equals(value)) {

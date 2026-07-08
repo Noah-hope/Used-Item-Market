@@ -52,18 +52,21 @@ public class WantedRepository extends JdbcVoMapperSupport {
         return created;
     }
 
-    public WantedVo closeWanted(String uid, Long id) {
-        int updated = jdbcTemplate.update("update wanted_post set Status = 'CLOSED' where UID = ? and Id = ?", uid, id);
-        if (updated == 0) {
-            throw new BaseException(404, "求购信息不存在");
-        }
-        WantedVo wanted = jdbcTemplate.queryForObject(
+    public WantedVo deleteWanted(String uid, Long id) {
+        List<WantedVo> list = jdbcTemplate.query(
                 "select w.Id, w.UID, u.Uname PublisherName, w.Title, w.Category, w.Budget, w.Keyword, w.Description, w.Status, w.CreatedAt " +
                         "from wanted_post w left join user u on u.UID = w.UID where w.Id = ?",
                 wantedMapper(),
                 id
         );
-        fillMatches(Collections.singletonList(wanted));
+        if (list.isEmpty()) {
+            throw new BaseException(404, "求购信息不存在");
+        }
+        WantedVo wanted = list.get(0);
+        if (!uid.equals(wanted.getUid())) {
+            throw new BaseException(403, "无权删除该求购");
+        }
+        jdbcTemplate.update("delete from wanted_post where Id = ?", id);
         return wanted;
     }
 

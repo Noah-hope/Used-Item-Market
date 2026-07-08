@@ -1,4 +1,4 @@
-﻿package com.useditemmarket.service.api.impl;
+package com.useditemmarket.service.api.impl;
 
 import com.useditemmarket.dto.GoodsQuery;
 import com.useditemmarket.exception.BaseException;
@@ -14,12 +14,12 @@ import com.useditemmarket.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 
 @Service
 @Transactional(readOnly = true)
@@ -65,7 +65,8 @@ public class CatalogServiceImpl extends AbstractApiSupport implements CatalogSer
     @Override
     public GoodsVo getGoodsDetail(String gid) {
         MarketGoods goods = requireGoods(gid);
-        if (!isPublicVisible(goods)) {
+        String sellerUid = salesDao.WhoseGoods(gid);
+        if (sellerUid == null || isAdminUid(sellerUid)) {
             throw new BaseException(404, "商品不存在");
         }
         return toGoodsVo(goods);

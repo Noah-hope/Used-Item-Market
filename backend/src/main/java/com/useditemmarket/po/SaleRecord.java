@@ -32,6 +32,9 @@ public class SaleRecord
 
     private String AddressSnapshot;
 
+    public SaleRecord() {
+    }
+
     public SaleRecord(String PID, String buyerID, String date, String time, String GID, String gname, String gkind, Double gprice, Double gnumber)
     {
         this.PID = PID;

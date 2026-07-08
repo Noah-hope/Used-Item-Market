@@ -52,6 +52,12 @@ public class SellerGoodsController {
         return ApiResponse.success("下架成功", null);
     }
 
+    @DeleteMapping("/{gid}/permanent")
+    public ApiResponse<Void> permanentDelete(@PathVariable String gid) {
+        sellerGoodsService.permanentDelete(AuthContext.get().getUid(), gid);
+        return ApiResponse.success("删除成功", null);
+    }
+
     @PostMapping("/upload-image")
     public ApiResponse<String> uploadImage(@RequestParam("imageFile") MultipartFile imageFile) {
         return ApiResponse.success("上传成功",

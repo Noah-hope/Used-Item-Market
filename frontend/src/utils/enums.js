@@ -13,15 +13,15 @@ export const GOODS_STATUS_MAP = {
 }
 
 export const ORDER_STATUS_MAP = {
-  PENDING_CONTACT: '待沟通',
   PENDING_PICKUP: '待自提',
+  PENDING_SHIPMENT: '待发货',
+  PENDING_RECEIPT: '待收货',
   COMPLETED: '已完成',
 }
 
 export const DELIVERY_MODE_MAP = {
-  SELF_PICKUP: '自提',
-  CAMPUS_DELIVERY: '送货到校',
-  BOTH: '自提/送货均可',
+  SELF_PICKUP: '买家自提',
+  CAMPUS_DELIVERY: '商家送货到指定地址',
 }
 
 export const WANTED_STATUS_MAP = {

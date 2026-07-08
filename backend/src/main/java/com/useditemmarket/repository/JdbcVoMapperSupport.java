@@ -68,6 +68,7 @@ public abstract class JdbcVoMapperSupport {
             vo.setSenderUid(rs.getString("SenderUID"));
             vo.setReceiverUid(rs.getString("ReceiverUID"));
             vo.setGoodsId(rs.getString("GoodsID"));
+            vo.setOrderPid(rs.getString("OrderPID"));
             vo.setContent(rs.getString("Content"));
             vo.setCreatedAt(rs.getString("CreatedAt"));
             vo.setRead(rs.getInt("IsRead") == 1);

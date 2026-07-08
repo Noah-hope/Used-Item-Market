@@ -12,5 +12,5 @@ public interface WantedService {
 
     WantedVo create(String uid, WantedCreateRequest request);
 
-    WantedVo close(String uid, Long id);
+    WantedVo delete(String uid, Long id);
 }

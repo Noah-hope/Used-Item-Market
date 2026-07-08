@@ -3,35 +3,54 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.useditemmarket.dao.CarDao">
-    <!--完善1.namespace 2.sql语句的id和resuleType-->
-    <delete id="DeleteGoods" >
-        delete  from shoppingcart where UID=#{UID} and GID=#{marketGoods.GID}
+    <delete id="DeleteGoods">
+        delete from shoppingcart where UID=#{UID} and GID=#{marketGoods.GID}
     </delete>
 
-    <insert id="InsertGoods" >
+    <delete id="DeleteByGid">
+        delete from shoppingcart where GID=#{GID}
+    </delete>
+
+    <insert id="InsertGoods">
         insert into shoppingcart values(#{UID},#{marketGoods.GID},#{marketGoods.Number})
     </insert>
 
-    <resultMap id="MarketGoodsMap" type="com.useditemmarket.po.MarketGoods">
-        <!-- 主键字段使用 id -->
-        <id column="GID" property="GID" />
-        <!--非主键字段使用 result-->
-        <result column="Name" property="Name"/>
-        <result column="Kind" property="Kind" />
-        <result column="Price" property="Price" />
-        <result column="Number" property="Number" />
-        <result column="Image" property="Image"/>
+    <resultMap id="CartItemMap" type="com.useditemmarket.vo.CartItemVo">
+        <id column="GID" property="gid"/>
+        <result column="Name" property="name"/>
+        <result column="Kind" property="category"/>
+        <result column="Price" property="price"/>
+        <result column="CartQuantity" property="quantity"/>
+        <result column="Stock" property="stock"/>
+        <result column="Image" property="image"/>
+        <result column="Status" property="status"/>
+        <result column="SellerUid" property="sellerUid"/>
+        <result column="SellerName" property="sellerName"/>
     </resultMap>
 
     <update id="ChangeCart" parameterType="com.useditemmarket.po.MarketGoods">
-        UPDATE shoppingcart
+        update shoppingcart
         set UID=#{UID}, GID=#{marketGoods.GID}, Number=#{marketGoods.Number}
         where UID=#{UID} and GID=#{marketGoods.GID}
     </update>
 
-    <select id="ShowGoods" resultMap="MarketGoodsMap">
-        select shoppingcart.GID,Name,Kind,Price,shoppingcart.Number,marketgoods.Image from shoppingcart,marketgoods where
-        shoppingcart.UID=#{UID} and shoppingcart.GID=marketgoods.GID and shoppingcart.Number > 0
+    <select id="ShowGoods" resultMap="CartItemMap">
+        select shoppingcart.GID,
+               marketgoods.Name,
+               marketgoods.Kind,
+               marketgoods.Price,
+               shoppingcart.Number as CartQuantity,
+               marketgoods.Number as Stock,
+               marketgoods.Image,
+               marketgoods.Status,
+               salegoods.UID as SellerUid,
+               user.Uname as SellerName
+        from shoppingcart
+        join marketgoods on shoppingcart.GID = marketgoods.GID
+        left join salegoods on salegoods.GID = marketgoods.GID
+        left join user on user.UID = salegoods.UID
+        where shoppingcart.UID = #{UID}
+          and shoppingcart.Number > 0
     </select>
 
 </mapper>

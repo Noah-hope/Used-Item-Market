@@ -35,7 +35,7 @@ onMounted(loadUsers)
         <h2>校内账号列表</h2>
       </div>
     </div>
-    <div class="table-shell">
+    <div class="table-shell admin-table-shell">
       <table class="data-table">
         <thead>
           <tr>
@@ -48,7 +48,7 @@ onMounted(loadUsers)
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.uid">
+          <tr v-for="user in users" :key="user.uid" class="admin-data-row">
             <td>{{ user.uid }}</td>
             <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>

@@ -55,8 +55,11 @@ export const chatApi = {
   conversations() {
     return http.get('/chat/conversations')
   },
-  messages(peerUid) {
-    return http.get(`/chat/messages/${peerUid}`)
+  removeConversation(conversationKey) {
+    return http.delete(`/chat/conversations/${encodeURIComponent(conversationKey)}`)
+  },
+  messages(conversationKey) {
+    return http.get(`/chat/messages/${encodeURIComponent(conversationKey)}`)
   },
   send(payload) {
     return http.post('/chat/messages', payload)
@@ -73,8 +76,8 @@ export const wantedApi = {
   create(payload) {
     return http.post('/wanted', payload)
   },
-  close(id) {
-    return http.post(`/wanted/${id}/close`)
+  remove(id) {
+    return http.delete(`/wanted/${id}`)
   },
 }
 
@@ -93,6 +96,9 @@ export const sellerApi = {
   },
   remove(id) {
     return http.delete(`/seller/goods/${id}`)
+  },
+  permanentDelete(id) {
+    return http.delete(`/seller/goods/${id}/permanent`)
   },
   uploadImage(file) {
     const fd = new FormData()
@@ -131,6 +137,9 @@ export const orderApi = {
   },
   receive(pid) {
     return http.post(`/orders/${pid}/receive`)
+  },
+  remove(pid) {
+    return http.delete(`/orders/${pid}`)
   },
 }
 

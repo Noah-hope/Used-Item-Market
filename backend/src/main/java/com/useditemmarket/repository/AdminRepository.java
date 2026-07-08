@@ -37,7 +37,7 @@ public class AdminRepository extends JdbcVoMapperSupport {
         dashboard.setGoodsActive(queryLong(jdbcTemplate, "select count(*) from marketgoods where Status = 'ACTIVE'"));
         dashboard.setGoodsPending(queryLong(jdbcTemplate, "select count(*) from marketgoods where Status = 'PENDING_REVIEW'"));
         dashboard.setTotalOrders(queryLong(jdbcTemplate, "select count(*) from traderecord"));
-        dashboard.setCompletedOrders(queryLong(jdbcTemplate, "select count(*) from traderecord where Status = 'COMPLETED' or (IsSent = 1 and IsGot = 1)"));
+        dashboard.setCompletedOrders(queryLong(jdbcTemplate, "select count(*) from traderecord where Status = 'COMPLETED'"));
         dashboard.setDisabledUsers(queryLong(jdbcTemplate, "select count(*) from user where Status = 2"));
         dashboard.setWantedOpen(queryLong(jdbcTemplate, "select count(*) from wanted_post where Status = 'OPEN'"));
         return dashboard;

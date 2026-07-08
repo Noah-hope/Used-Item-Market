@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import MainLayout from '../layouts/MainLayout.vue'
-import AdminLayout from '../layouts/AdminLayout.vue'
-import HomePage from '../views/HomePage.vue'
 import MarketPage from '../views/MarketPage.vue'
 import GoodsDetailPage from '../views/GoodsDetailPage.vue'
 import LoginPage from '../views/LoginPage.vue'
@@ -28,7 +26,7 @@ const routes = [
     path: '/',
     component: MainLayout,
     children: [
-      { path: '', name: 'home', component: HomePage },
+      { path: '', name: 'home', component: MarketPage },
       { path: 'market', name: 'market', component: MarketPage },
       { path: 'goods/:id', name: 'goods-detail', component: GoodsDetailPage, props: true },
       { path: 'cart', name: 'cart', component: CartPage, meta: { requiresAuth: true } },
@@ -41,22 +39,15 @@ const routes = [
       { path: 'seller/goods', name: 'seller-goods', component: SellerGoodsPage, meta: { requiresAuth: true } },
       { path: 'publish', name: 'publish', component: PublishGoodsPage, meta: { requiresAuth: true } },
       { path: 'seller/goods/:id/edit', name: 'edit-goods', component: EditGoodsPage, props: true, meta: { requiresAuth: true } },
+      { path: 'admin/dashboard', name: 'admin-dashboard', component: AdminDashboardPage, meta: { requiresAuth: true, requiresAdmin: true } },
+      { path: 'admin/users', name: 'admin-users', component: AdminUsersPage, meta: { requiresAuth: true, requiresAdmin: true } },
+      { path: 'admin/goods', name: 'admin-goods', component: AdminGoodsPage, meta: { requiresAuth: true, requiresAdmin: true } },
+      { path: 'admin/categories', name: 'admin-categories', component: AdminCategoriesPage, meta: { requiresAuth: true, requiresAdmin: true } },
+      { path: 'admin/orders', name: 'admin-orders', component: AdminOrdersPage, meta: { requiresAuth: true, requiresAdmin: true } },
     ],
   },
   { path: '/login', name: 'login', component: LoginPage },
   { path: '/register', name: 'register', component: RegisterPage },
-  {
-    path: '/admin',
-    component: AdminLayout,
-    meta: { requiresAuth: true, requiresAdmin: true },
-    children: [
-      { path: 'dashboard', name: 'admin-dashboard', component: AdminDashboardPage },
-      { path: 'users', name: 'admin-users', component: AdminUsersPage },
-      { path: 'goods', name: 'admin-goods', component: AdminGoodsPage },
-      { path: 'categories', name: 'admin-categories', component: AdminCategoriesPage },
-      { path: 'orders', name: 'admin-orders', component: AdminOrdersPage },
-    ],
-  },
 ]
 
 const router = createRouter({
@@ -75,6 +66,23 @@ router.beforeEach(async (to) => {
   }
   if (to.meta.requiresAdmin && !authStore.user?.admin) {
     return { name: 'home' }
+  }
+  if (authStore.user?.admin) {
+    const blockedForAdmin = new Set([
+      'cart',
+      'favorites',
+      'messages',
+      'purchases',
+      'sales',
+      'seller-goods',
+      'publish',
+      'edit-goods',
+      'wanted',
+      'profile',
+    ])
+    if (blockedForAdmin.has(to.name)) {
+      return { name: 'home' }
+    }
   }
   if ((to.name === 'login' || to.name === 'register') && authStore.isAuthenticated) {
     return { name: 'home' }

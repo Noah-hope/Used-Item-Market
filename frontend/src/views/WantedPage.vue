@@ -10,9 +10,7 @@ const myWanted = ref([])
 const form = reactive({
   title: '',
   category: '',
-  budget: 0,
   keyword: '',
-  description: '',
 })
 
 async function loadCategories() {
@@ -33,16 +31,18 @@ async function loadWanted() {
 }
 
 async function submitWanted() {
-  await wantedApi.create(form)
+  await wantedApi.create({
+    title: form.title,
+    category: form.category,
+    keyword: form.keyword,
+  })
   form.title = ''
-  form.budget = 0
   form.keyword = ''
-  form.description = ''
   await loadWanted()
 }
 
-async function closeWanted(id) {
-  await wantedApi.close(id)
+async function deleteWanted(id) {
+  await wantedApi.remove(id)
   await loadWanted()
 }
 
@@ -53,45 +53,39 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="profile-grid">
+  <section class="wanted-layout">
     <div class="panel-card">
-      <p class="eyebrow">闲置求购</p>
       <h2>求购广场</h2>
+      <p class="hint-text market-tip">
+        求购市场仅检索并展示名称匹配的商品，是否合适请自行搜索并查看商品详情。
+      </p>
       <div v-if="!marketWanted.length" class="empty-state">暂时还没有求购信息</div>
-      <div v-else class="list-panel">
-        <div v-for="item in marketWanted" :key="item.id" class="list-row stacked">
-          <div>
-            <strong>{{ item.title }}</strong>
-            <p>{{ item.category }} · 预算 ￥{{ item.budget || 0 }} · {{ item.publisherName || item.uid }}</p>
-            <p>{{ item.description || '求购方还没有补充更多描述。' }}</p>
+      <div v-else class="wanted-grid">
+        <article v-for="item in marketWanted" :key="item.id" class="wanted-card">
+          <div class="wanted-card-head">
+            <strong class="wanted-name">{{ item.title }}</strong>
+            <span class="tag">{{ item.category }}</span>
           </div>
-          <div class="match-block">
-            <span class="tag">{{ $enumLabel('wantedStatus', item.status) }}</span>
-            <p class="hint-text">关键词：{{ item.keyword || '无' }}</p>
-            <p class="hint-text">匹配到的在售商品</p>
-            <div v-if="item.matches?.length" class="match-list">
-              <div v-for="match in item.matches" :key="match.gid" class="mini-item">
-                <span>{{ match.name }}</span>
-                <strong>￥{{ match.price }}</strong>
-              </div>
+          <p class="wanted-keyword">关键词：{{ item.keyword || '未填写' }}</p>
+          <div class="match-compact">
+            <span class="match-label">匹配商品</span>
+            <div v-if="item.matches?.length" class="match-name-list">
+              <span v-for="match in item.matches" :key="match.gid" class="match-chip">{{ match.name }}</span>
             </div>
-            <p v-else class="hint-text">暂时没有匹配到合适的商品</p>
+            <span v-else class="hint-text">暂无匹配商品</span>
           </div>
-        </div>
+        </article>
       </div>
     </div>
 
     <div class="panel-card">
-      <p class="eyebrow">发布求购</p>
       <h2>告诉大家你想找什么</h2>
       <div class="form-grid">
-        <input v-model="form.title" class="text-input" placeholder="求购标题" />
+        <input v-model="form.title" class="text-input" placeholder="求购物品名字" />
         <select v-model="form.category" class="select-input">
           <option v-for="item in categories" :key="item.code" :value="item.label">{{ item.label }}</option>
         </select>
-        <input v-model.number="form.budget" class="text-input" type="number" min="0" placeholder="预算" />
         <input v-model="form.keyword" class="text-input" placeholder="关键词，例如高数教材 / 羽毛球拍" />
-        <textarea v-model="form.description" class="text-area" placeholder="补充你的需求说明"></textarea>
       </div>
       <button v-if="authStore.isAuthenticated" class="primary-btn" @click="submitWanted">发布求购</button>
       <p v-else class="hint-text">登录后才能发布求购信息。</p>
@@ -99,21 +93,143 @@ onMounted(async () => {
       <div v-if="authStore.isAuthenticated" class="my-section">
         <div class="section-header compact">
           <div>
-            <p class="eyebrow">我的求购</p>
             <h3>我发过的需求</h3>
           </div>
         </div>
         <div v-if="!myWanted.length" class="empty-state">你还没有发布过求购</div>
-        <div v-else class="list-panel">
-          <div v-for="item in myWanted" :key="item.id" class="list-row">
-            <div>
+        <div v-else class="my-wanted-list">
+          <div v-for="item in myWanted" :key="item.id" class="my-wanted-row">
+            <div class="my-wanted-main">
               <strong>{{ item.title }}</strong>
-              <p>{{ item.category }} · {{ $enumLabel('wantedStatus', item.status) }}</p>
+              <p>{{ item.category }} · {{ item.keyword || '未填写关键词' }}</p>
             </div>
-            <button v-if="item.status === 'OPEN'" class="ghost-btn" @click="closeWanted(item.id)">关闭求购</button>
+            <button class="ghost-btn" @click="deleteWanted(item.id)">删除</button>
           </div>
         </div>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.wanted-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.market-tip {
+  margin-bottom: 16px;
+}
+
+.panel-card > .primary-btn {
+  margin-top: 14px;
+}
+
+.wanted-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.wanted-card {
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  padding: 18px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.wanted-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wanted-name {
+  color: #1f2937;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.wanted-keyword {
+  margin: 8px 0 10px;
+  color: #667085;
+  font-size: 13px;
+}
+
+.match-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-label {
+  color: #98a2b3;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.match-name-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.match-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #374151;
+  font-size: 13px;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.my-wanted-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.my-wanted-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.my-wanted-main {
+  min-width: 0;
+}
+
+.my-wanted-main strong,
+.my-wanted-main p {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.my-wanted-main p {
+  margin-top: 4px;
+  color: #667085;
+}
+
+@media (max-width: 1100px) {
+  .wanted-layout {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

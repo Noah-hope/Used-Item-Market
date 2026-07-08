@@ -3,9 +3,16 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.useditemmarket.dao.RecordDao">
-    <!--完善1.namespace 2.sql语句的id和resuleType-->
     <delete id="DeleteRecord">
-        delete from  traderecord where PID=#{PID}
+        delete from traderecord where PID=#{PID}
+    </delete>
+
+    <delete id="DeleteByPid">
+        delete from traderecord where PID=#{PID}
+    </delete>
+
+    <delete id="DeleteByGid">
+        delete from traderecord where GID=#{GID}
     </delete>
 
     <select id="SelectRecord" parameterType="com.useditemmarket.po.PurchaseRecord">
@@ -25,10 +32,16 @@
         set IsSent=#{IsSent},IsGot=#{IsGot},
             Status=
             <choose>
-                <when test="IsSent == false and IsGot == false">'PENDING_CONTACT'</when>
-                <when test="IsSent == true and IsGot == false">'PENDING_PICKUP'</when>
+                <when test="IsSent == false and IsGot == false">'PENDING_SHIPMENT'</when>
+                <when test="IsSent == true and IsGot == false">'PENDING_RECEIPT'</when>
                 <otherwise>'COMPLETED'</otherwise>
             </choose>
+        where PID=#{PID}
+    </update>
+
+    <update id="UpdateStatus">
+        update traderecord
+        set Status=#{Status}, IsSent=#{IsSent}, IsGot=#{IsGot}
         where PID=#{PID}
     </update>
 

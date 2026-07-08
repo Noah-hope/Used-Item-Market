@@ -1,5 +1,7 @@
-﻿package com.useditemmarket.service.api.impl;
+package com.useditemmarket.service.api.impl;
 
+import com.useditemmarket.dao.CarDao;
+import com.useditemmarket.dao.RecordDao;
 import com.useditemmarket.dto.GoodsCreateRequest;
 import com.useditemmarket.dto.GoodsUpdateRequest;
 import com.useditemmarket.exception.BaseException;
@@ -8,6 +10,8 @@ import com.useditemmarket.model.GoodsCategory;
 import com.useditemmarket.model.GoodsStatus;
 import com.useditemmarket.po.MarketGoods;
 import com.useditemmarket.po.MarketUser;
+import com.useditemmarket.repository.ChatRepository;
+import com.useditemmarket.repository.FavoriteRepository;
 import com.useditemmarket.service.api.SellerGoodsService;
 import com.useditemmarket.service.support.FileStorageService;
 import com.useditemmarket.vo.GoodsVo;
@@ -27,6 +31,14 @@ public class SellerGoodsServiceImpl extends AbstractApiSupport implements Seller
 
     @Resource
     private FileStorageService fileStorageService;
+    @Resource
+    private CarDao carDao;
+    @Resource
+    private RecordDao recordDao;
+    @Resource
+    private FavoriteRepository favoriteRepository;
+    @Resource
+    private ChatRepository chatRepository;
 
     @Override
     public List<GoodsVo> listMine(String uid) {
@@ -65,6 +77,8 @@ public class SellerGoodsServiceImpl extends AbstractApiSupport implements Seller
         goods.setDeliveryMode(DeliveryMode.fromValue(request.getDeliveryMode()).name());
         goods.setPickupLocation(normalizeOptional(request.getPickupLocation()));
         goods.setCampusOnly(1);
+        goods.setReviewNote(null);
+        goods.setReviewNoteTouched(true);
         goods.setPublishedAt(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         if (!goodsDao.InsertGoods(goods) || !salesDao.InsertGoods(uid, goods)) {
             throw new BaseException(500, "发布商品失败");
@@ -94,8 +108,8 @@ public class SellerGoodsServiceImpl extends AbstractApiSupport implements Seller
             goods.setPrice(request.getPrice());
         }
         if (request.getStock() != null) {
-            if (request.getStock() <= 0) {
-                throw new BaseException(400, "库存必须大于 0");
+            if (request.getStock() < 0) {
+                throw new BaseException(400, "库存不能小于 0");
             }
             goods.setNumber(request.getStock());
         }
@@ -111,8 +125,18 @@ public class SellerGoodsServiceImpl extends AbstractApiSupport implements Seller
         if (request.getPickupLocation() != null) {
             goods.setPickupLocation(normalizeOptional(request.getPickupLocation()));
         }
-        goods.setStatus(GoodsStatus.PENDING_REVIEW.name());
+
+        GoodsStatus currentStatus = GoodsStatus.fromValue(goods.getStatus());
+        Double stock = goods.getNumber();
+        if (stock != null && stock > 0) {
+            goods.setStatus(GoodsStatus.PENDING_REVIEW.name());
+        } else if (currentStatus == GoodsStatus.REJECTED || currentStatus == GoodsStatus.BANNED) {
+            goods.setStatus(currentStatus.name());
+        } else {
+            goods.setStatus(GoodsStatus.OFF_SHELF.name());
+        }
         goods.setReviewNote(null);
+        goods.setReviewNoteTouched(true);
         if (!goodsDao.ChangeInfo(goods)) {
             throw new BaseException(500, "更新商品失败");
         }
@@ -126,8 +150,39 @@ public class SellerGoodsServiceImpl extends AbstractApiSupport implements Seller
         MarketGoods goods = requireGoods(gid);
         goods.setNumber(0.0);
         goods.setStatus(GoodsStatus.OFF_SHELF.name());
+        goods.setReviewNote(null);
+        goods.setReviewNoteTouched(true);
         if (!goodsDao.ChangeInfo(goods)) {
             throw new BaseException(500, "下架商品失败");
+        }
+    }
+
+    @Override
+    public void permanentDelete(String uid, String gid) {
+        requireNormalUser(uid);
+        requireOwner(uid, gid);
+        MarketGoods goods = requireGoods(gid);
+        GoodsStatus status = GoodsStatus.fromValue(goods.getStatus());
+        if (status == GoodsStatus.ACTIVE) {
+            throw new BaseException(400, "在售商品不能直接删除，请先下架");
+        }
+        if (status != GoodsStatus.PENDING_REVIEW
+                && status != GoodsStatus.OFF_SHELF
+                && status != GoodsStatus.REJECTED
+                && status != GoodsStatus.BANNED) {
+            throw new BaseException(400, "当前状态的商品不允许删除");
+        }
+
+        fileStorageService.deleteImage(goods.getImage());
+        carDao.DeleteByGid(gid);
+        favoriteRepository.deleteByGid(gid);
+        recordDao.DeleteByGid(gid);
+        chatRepository.clearGoodsId(gid);
+        if (!salesDao.DeleteGoods(uid, goods)) {
+            throw new BaseException(500, "删除商品关联失败");
+        }
+        if (!goodsDao.DeleteGoods(goods)) {
+            throw new BaseException(500, "删除商品失败");
         }
     }
 

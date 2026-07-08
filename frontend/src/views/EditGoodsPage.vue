@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { catalogApi, sellerApi } from '../api/modules'
 import { extractErrorMessage } from '../api/http'
@@ -13,15 +13,36 @@ const imagePreview = ref('')
 const currentImage = ref('')
 const submitting = ref(false)
 const errorMessage = ref('')
+const goodsStatus = ref('')
+const reviewNote = ref('')
 const form = reactive({
   name: '',
   category: '',
-  price: 0,
-  stock: 1,
+  price: null,
+  stock: null,
   image: '',
   comment: '',
   deliveryMode: 'SELF_PICKUP',
   pickupLocation: '',
+})
+
+const isRelistMode = computed(() => route.query.mode === 'relist')
+const showRelistHint = computed(() => isRelistMode.value || ['OFF_SHELF', 'REJECTED', 'BANNED'].includes(goodsStatus.value))
+const showRelistStockWarning = computed(() => isRelistMode.value && !(Number(form.stock) > 0))
+const relistHintText = computed(() => {
+  if (!showRelistHint.value) {
+    return ''
+  }
+  if (isRelistMode.value) {
+    if (reviewNote.value) {
+      return '请先将库存修改为大于 0，再根据审核备注修改商品信息后保存，商品会重新进入审核。'
+    }
+    return '请先将库存修改为大于 0，再修改商品信息后保存，商品会重新进入审核。'
+  }
+  if (reviewNote.value) {
+    return '请根据审核备注修改商品信息后保存，商品会重新进入审核，审核通过后重新上架。'
+  }
+  return '修改商品信息后保存，商品会重新进入审核，审核通过后重新上架。'
 })
 
 async function loadDetail() {
@@ -38,7 +59,9 @@ async function loadDetail() {
     deliveryMode: response.data.deliveryMode || 'SELF_PICKUP',
     pickupLocation: response.data.pickupLocation || '',
   })
+  goodsStatus.value = response.data.status || ''
   currentImage.value = response.data.image || ''
+  reviewNote.value = response.data.reviewNote || ''
 }
 
 function onFileChange(e) {
@@ -49,6 +72,10 @@ function onFileChange(e) {
 }
 
 async function submit() {
+  if (isRelistMode.value && !(Number(form.stock) > 0)) {
+    errorMessage.value = '重新上架时请先将库存修改为大于 0，再保存提交审核'
+    return
+  }
   if (submitting.value) return
   submitting.value = true
   errorMessage.value = ''
@@ -71,15 +98,17 @@ onMounted(loadDetail)
 
 <template>
   <section class="panel-card wide-panel">
-    <p class="eyebrow">编辑商品</p>
     <h2>调整商品信息</h2>
+    <p v-if="showRelistHint" class="success-text">{{ relistHintText }}</p>
+    <p v-if="showRelistHint && reviewNote" class="error-text">审核备注：{{ reviewNote }}</p>
+    <p v-if="showRelistStockWarning" class="error-text">当前库存为 0，重新上架前请先把库存修改为大于 0。</p>
     <div class="form-grid two">
       <input v-model="form.name" class="text-input" placeholder="商品名称" />
       <select v-model="form.category" class="select-input">
         <option v-for="item in categories" :key="item.code" :value="item.label">{{ item.label }}</option>
       </select>
-      <input v-model.number="form.price" class="text-input" type="number" placeholder="价格" />
-      <input v-model.number="form.stock" class="text-input" type="number" placeholder="库存" />
+      <input v-model.number="form.price" class="text-input" type="number" placeholder="请输入商品价格" />
+      <input v-model.number="form.stock" class="text-input" type="number" min="0" placeholder="请输入商品库存" />
       <div class="image-upload-area">
         <label class="image-upload-label">
           <span v-if="!imagePreview && !currentImage">点击上传商品图片</span>
@@ -91,14 +120,15 @@ onMounted(loadDetail)
         <p v-else-if="currentImage && !imagePreview" class="hint-text">点击可替换当前图片</p>
       </div>
       <select v-model="form.deliveryMode" class="select-input">
-        <option value="SELF_PICKUP">自提</option>
-        <option value="CAMPUS_DELIVERY">送货到校</option>
-        <option value="BOTH">自提/送货均可</option>
+        <option value="SELF_PICKUP">买家自提</option>
+        <option value="CAMPUS_DELIVERY">商家送货到指定地址</option>
       </select>
       <input v-model="form.pickupLocation" class="text-input" placeholder="自提点或送货说明" />
       <textarea v-model="form.comment" class="text-area" placeholder="商品描述"></textarea>
     </div>
     <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
-    <button class="primary-btn" :disabled="submitting" @click="submit">保存修改</button>
+    <div class="form-action-row">
+      <button class="primary-btn" :disabled="submitting" @click="submit">保存修改</button>
+    </div>
   </section>
 </template>

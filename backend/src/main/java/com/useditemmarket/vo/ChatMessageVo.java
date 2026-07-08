@@ -5,6 +5,7 @@ public class ChatMessageVo {
     private String senderUid;
     private String receiverUid;
     private String goodsId;
+    private String orderPid;
     private String content;
     private String createdAt;
     private boolean read;
@@ -39,6 +40,14 @@ public class ChatMessageVo {
 
     public void setGoodsId(String goodsId) {
         this.goodsId = goodsId;
+    }
+
+    public String getOrderPid() {
+        return orderPid;
+    }
+
+    public void setOrderPid(String orderPid) {
+        this.orderPid = orderPid;
     }
 
     public String getContent() {

@@ -18,5 +18,7 @@ public interface SellerGoodsService {
 
     void delete(String uid, String gid);
 
+    void permanentDelete(String uid, String gid);
+
     String uploadImage(MultipartFile file, String uid);
 }
