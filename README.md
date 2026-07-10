@@ -65,7 +65,7 @@
 
 ## 技术栈
 
-## 前端
+### 前端
 
 - Vue 3
 - Vite
@@ -73,7 +73,7 @@
 - Pinia
 - Axios
 
-## 后端
+### 后端
 
 - Spring MVC
 - Spring JDBC / Service
@@ -82,7 +82,7 @@
 - JWT
 - Tomcat 9
 
-## 数据库
+### 数据库
 
 - MySQL
 
@@ -136,7 +136,19 @@ Used-Item-Market/
 - MySQL 5.7+ 或 8.x
 - Tomcat 9
 
-当前脚本中已经写死了部分本机路径，如果换机器运行，需要按实际环境修改脚本中的路径配置。
+如果是首次在新机器上运行，请先确认下面几项：
+
+- `backend/start-tomcat9.ps1` 中的 Maven 路径是否存在
+- `backend/start-tomcat9.ps1` 中的 Tomcat 路径是否存在
+- `start-project.ps1` 中优先使用的 npm 路径是否存在
+
+当前脚本里的默认本机路径如下：
+
+- Maven：`D:\software\Maven\apache-maven-3.9.16\bin\mvn.cmd`
+- Tomcat：`D:\software\Tomcat\apache-tomcat-9.0.119`
+- npm：`D:\software\nodejs\npm.cmd`
+
+如果你的机器路径不同，请先修改对应脚本中的变量再启动项目。
 
 ---
 
@@ -173,15 +185,61 @@ maxWait=60000
 
 因此只要基础数据库可连接，新增功能相关表通常可以自动初始化。
 
+但需要注意：
+
+1. 需要先在 MySQL 中手动创建数据库，例如：`useditemmarket`
+2. 自动迁移负责建表和补字段，不负责创建数据库实例本身
+
 ---
 
 ## 启动方式
 
-## 方式一：一键启动前后端
+第一次启动项目时，建议按下面顺序操作。
+
+### 启动前准备
+
+1. 安装并确认以下环境可用：
+   - JDK 8
+   - Maven 3.9+
+   - Node.js 与 npm
+   - MySQL 5.7+ 或 8.x
+   - Tomcat 9
+2. 在 MySQL 中创建数据库：
+
+```sql
+CREATE DATABASE useditemmarket DEFAULT CHARACTER SET utf8mb4;
+```
+
+3. 将 `backend/src/main/resources/jdbc.properties.example` 复制为 `backend/src/main/resources/jdbc.properties`
+4. 修改 `jdbc.properties` 中的数据库连接信息
+5. 按照你的本机环境，检查并修改以下脚本中的路径变量：
+   - `start-project.ps1`
+   - `backend/start-tomcat9.ps1`
+6. 首次启动前端前，先进入 `frontend` 目录安装依赖：
+
+```powershell
+npm install
+```
+
+完成以上准备后，再选择下面任一种启动方式。
+
+### 方式一：一键启动前后端
 
 根目录提供了统一启动脚本：
 
 - `start-project.ps1`
+
+在项目根目录执行：
+
+```powershell
+.\start-project.ps1
+```
+
+如果当前 PowerShell 禁止脚本执行，也可以使用：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start-project.ps1
+```
 
 执行后会：
 
@@ -193,13 +251,19 @@ maxWait=60000
 
 - `stop-project.ps1`
 
-## 方式二：分别启动
+### 方式二：分别启动
 
 ### 启动后端
 
 后端脚本：
 
 - `backend/start-tomcat9.ps1`
+
+在项目根目录执行：
+
+```powershell
+.\backend\start-tomcat9.ps1
+```
 
 该脚本会：
 
@@ -212,6 +276,13 @@ maxWait=60000
 进入前端目录后执行：
 
 ```powershell
+npm install
+npm run dev
+```
+
+如果你已经安装过依赖，只执行下面这条也可以：
+
+```powershell
 npm run dev
 ```
 
@@ -221,7 +292,7 @@ npm run dev
 
 ## 默认访问方式
 
-前端使用 Vite 开发服务器启动后，通常可通过浏览器访问：
+前端使用 Vite 开发服务器启动后，可通过浏览器访问：
 
 - `http://localhost:5173`
 
@@ -229,7 +300,12 @@ npm run dev
 
 - `8080`
 
-前端通过 `/api` 代理或同源方式访问后端接口。
+前端开发服务器已经配置了代理：
+
+- `/api` -> `http://localhost:8080`
+- `/img` -> `http://localhost:8080`
+
+也就是说，前端页面访问 `5173` 端口，接口请求会自动转发到后端 `8080` 端口。
 
 ---
 
